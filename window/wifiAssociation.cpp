@@ -1,10 +1,12 @@
 #include "wifiAssociation.h"
 
-WiFiAssociation::WiFiAssociation() {
+WiFiAssociation::WiFiAssociation()
+{
     // Empty constructor
 }
 
-void WiFiAssociation::setup() {
+void WiFiAssociation::setup()
+{
     Serial.print("Wi-Fi start: Connecting to ");
     Serial.println(WIFI_SSID);
 
@@ -12,15 +14,19 @@ void WiFiAssociation::setup() {
     WiFi.begin(WIFI_SSID, WIFI_CREDENTIAL);
 }
 
-void WiFiAssociation::loop() {
-    if (WiFi.status() == WL_CONNECTED && !isAssocated) {
+void WiFiAssociation::loop()
+{
+    if (WiFi.status() == WL_CONNECTED && !associated)
+    {
         // We are now connected to Wi-Fi
         Serial.print("Wi-Fi connected: ");
         Serial.print(WIFI_SSID);
         Serial.print(", IP: ");
         Serial.println(WiFi.localIP());
-        isAssocated = true;
-    } else if (WiFi.status() != WL_CONNECTED) {
-        isAssocated = false;
+        associated = true;
+    }
+    else if (WiFi.status() != WL_CONNECTED)
+    {
+        associated = false;
     }
 }

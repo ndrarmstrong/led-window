@@ -1,24 +1,12 @@
 #include <Arduino.h>
+#include "config.h"
 #include "wifiAssociation.h"
+#include "ota.h"
 
 // FastLED library
 #define FASTLED_INTERRUPT_RETRY_COUNT 0
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
-
-// Board configuration
-#define PWM_HZ 400    // PWM frequency
-#define PWM_RANGE 255 // PWM range - 8 bit
-
-// Pin configuration
-#define PIN_READY_LED 13        // D7
-#define PIN_WHITE_STRIP 14      // D5
-#define PIN_TOP_COLOR_DATA 5    // D1
-#define PIN_BOTTOM_COLOR_DATA 4 // D2
-
-// Strip configuration
-#define TOP_COLOR_LED_COUNT 40
-#define BOTTOM_COLOR_LED_COUNT 40
 
 // Program config
 #define CHANNEL_TEST_WHITE_FACTOR 3   // Keep the current draw under 1A - low speed fan!
@@ -36,6 +24,7 @@
 
 // Globals
 WiFiAssociation wifi;
+OTA ota(&wifi);
 CRGB topLeds[TOP_COLOR_LED_COUNT];
 CRGB bottomLeds[BOTTOM_COLOR_LED_COUNT];
 int channelIndex = 0;
@@ -48,6 +37,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("Setup");
   wifi.setup();
+  ota.setup();
 
   // Use a lower PWM freq and resolution to minimize CPU time
   analogWriteFreq(PWM_HZ);
@@ -74,10 +64,14 @@ void setup()
 
 void loop()
 {
+  wifi.loop();
+  ota.loop();
+
   unsigned long now = millis();
 
   // Rollover counters
-  if (lastLoop > now) {
+  if (lastLoop > now)
+  {
     lastLoop = 0;
   }
 
@@ -108,8 +102,6 @@ void loop()
 
   lastLoop = now;
 
-  wifi.loop();
-
   switch (MODE)
   {
   case 0:
@@ -126,7 +118,7 @@ void loop()
     break;
   default:
     selfTest();
-  }  
+  }
 }
 
 void selfTest()
@@ -240,71 +232,73 @@ void colorTempTest()
   int colorLevel = 0;
   CRGB color = CRGB::Black;
 
-  int temps[] = {2800,3300,4000,5000,6000,6400,8000,9500};
+  int temps[] = {2800, 3300, 4000, 5000, 6000, 6400, 8000, 9500};
 
-  if (tick > 7) {
+  if (tick > 7)
+  {
     tick = 0;
   }
 
   int targetTemp = temps[tick];
-  
-  switch(targetTemp){
-    case 9500:
-      whiteLevel = 180;
-      colorLevel = 250;
-      color = CRGB::Blue;
-      break;
-    case 8000:
-      whiteLevel = 210;
-      colorLevel = 155;
-      color = CRGB::Blue;
-      break;
-    case 6400:
-      whiteLevel = 210;
-      colorLevel = 0;
-      color = CRGB::Blue;
-      break;
-    case 6000:
-      whiteLevel = 210;
-      colorLevel = 100;
-      //color = CRGB::Red;
-      color = CRGB(100,50,0);
-      break;
-    case 5500:
-      whiteLevel = 180;
-      colorLevel = 255;
-      //color = CRGB::Red;
-      color = CRGB(255,128,0);
-      break;
-    case 5000:
-      whiteLevel = 85;
-      colorLevel = 255;
-      //color = CRGB::Red;
-      color = CRGB(255,128,0);
-      break;
-    case 4000:
-      whiteLevel = 29;
-      colorLevel = 255;
-      //color = CRGB::Red;
-      color = CRGB(255,128,0);
-      break;
-    case 3300:
-      whiteLevel = 15;
-      colorLevel = 255;
-      //color = CRGB::Red;
-      color = CRGB(255,96,0);
-      break;
-    case 2800:
-      whiteLevel = 8;
-      colorLevel = 255;
-      //color = CRGB::Red;
-      color = CRGB(255,64,0);
-      break;
-    default:
-      whiteLevel = 0;
-      colorLevel = 0;
+
+  switch (targetTemp)
+  {
+  case 9500:
+    whiteLevel = 180;
+    colorLevel = 250;
+    color = CRGB::Blue;
+    break;
+  case 8000:
+    whiteLevel = 210;
+    colorLevel = 155;
+    color = CRGB::Blue;
+    break;
+  case 6400:
+    whiteLevel = 210;
+    colorLevel = 0;
+    color = CRGB::Blue;
+    break;
+  case 6000:
+    whiteLevel = 210;
+    colorLevel = 100;
+    //color = CRGB::Red;
+    color = CRGB(100, 50, 0);
+    break;
+  case 5500:
+    whiteLevel = 180;
+    colorLevel = 255;
+    //color = CRGB::Red;
+    color = CRGB(255, 128, 0);
+    break;
+  case 5000:
+    whiteLevel = 85;
+    colorLevel = 255;
+    //color = CRGB::Red;
+    color = CRGB(255, 128, 0);
+    break;
+  case 4000:
+    whiteLevel = 29;
+    colorLevel = 255;
+    //color = CRGB::Red;
+    color = CRGB(255, 128, 0);
+    break;
+  case 3300:
+    whiteLevel = 15;
+    colorLevel = 255;
+    //color = CRGB::Red;
+    color = CRGB(255, 96, 0);
+    break;
+  case 2800:
+    whiteLevel = 8;
+    colorLevel = 255;
+    //color = CRGB::Red;
+    color = CRGB(255, 64, 0);
+    break;
+  default:
+    whiteLevel = 0;
+    colorLevel = 0;
   }
-  
+
   FastLED.setBrightness(colorLevel);
   writeAllLeds(color);
   FastLED.show();
