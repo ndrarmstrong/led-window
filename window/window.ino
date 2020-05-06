@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "wifiAssociation.h"
 
 // FastLED library
 #define FASTLED_INTERRUPT_RETRY_COUNT 0
@@ -24,7 +25,7 @@
 #define WHITE_POWER_TEST_STEP_SIZE 1  // Speed of the power test
 #define WHITE_POWER_TEST_MAX_DUTY 240 // Limit power to <5A
 #define FULL_PANEL_WHITE_LEVEL 180    // Limit power to < 5A
-#define MODE 1                        // 0 = Self test        \
+#define MODE 0                        // 0 = Self test        \
                                       // 1 = White power test \
                                       // 2 = Full panel test  \
                                       // 3 = Color temperature
@@ -34,6 +35,7 @@
 #define MODE_3_TICK_MS 3000
 
 // Globals
+WiFiAssociation wifi;
 CRGB topLeds[TOP_COLOR_LED_COUNT];
 CRGB bottomLeds[BOTTOM_COLOR_LED_COUNT];
 int channelIndex = 0;
@@ -43,8 +45,9 @@ bool decrease = false;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("Setup");
+  wifi.setup();
 
   // Use a lower PWM freq and resolution to minimize CPU time
   analogWriteFreq(PWM_HZ);
@@ -73,6 +76,11 @@ void loop()
 {
   unsigned long now = millis();
 
+  // Rollover counters
+  if (lastLoop > now) {
+    lastLoop = 0;
+  }
+
   int tickDelay;
   switch (MODE)
   {
@@ -100,6 +108,8 @@ void loop()
 
   lastLoop = now;
 
+  wifi.loop();
+
   switch (MODE)
   {
   case 0:
@@ -116,7 +126,7 @@ void loop()
     break;
   default:
     selfTest();
-  }
+  }  
 }
 
 void selfTest()
