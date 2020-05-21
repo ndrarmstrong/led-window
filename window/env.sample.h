@@ -4,10 +4,10 @@
 #define ENV_H
 
 // Wi-Fi
-#define WIFI_SSID "ABC"
-#define WIFI_CREDENTIAL "DEF"
+#define ENV_WIFI_SSID "ABC"
+#define ENV_WIFI_CREDENTIAL "DEF"
 
 // OTA
-#define OTA_PASSWORD "GHI"
+#define ENV_OTA_PASSWORD "GHI"
 
 #endif

@@ -1,319 +1,202 @@
-#include <Arduino.h>
-#include "config.h"
-#include "wifiAssociation.h"
-#include "ota.h"
-
-// FastLED library
 #define FASTLED_INTERRUPT_RETRY_COUNT 0
 #define FASTLED_ESP8266_RAW_PIN_ORDER
-#include <FastLED.h>
 
-// Program config
-#define CHANNEL_TEST_WHITE_FACTOR 3   // Keep the current draw under 1A - low speed fan!
-#define WHITE_POWER_TEST_STEP_SIZE 1  // Speed of the power test
-#define WHITE_POWER_TEST_MAX_DUTY 240 // Limit power to <5A
-#define FULL_PANEL_WHITE_LEVEL 180    // Limit power to < 5A
-#define MODE 0                        // 0 = Self test        \
-                                      // 1 = White power test \
-                                      // 2 = Full panel test  \
-                                      // 3 = Color temperature
-#define MODE_0_TICK_MS 500
-#define MODE_1_TICK_MS 20
-#define MODE_2_TICK_MS 5000
-#define MODE_3_TICK_MS 3000
+#include <Arduino.h>
+#include "config.h"
+#include "system.h"
+#include "leds.h"
+#include "modeSystem.h"
+#include "modeSelfTest.h"
+#include "modeRaw.h"
 
-// Globals
-WiFiAssociation wifi;
-OTA ota(&wifi);
-CRGB topLeds[TOP_COLOR_LED_COUNT];
-CRGB bottomLeds[BOTTOM_COLOR_LED_COUNT];
-int channelIndex = 0;
-int tick = 0;
-unsigned long lastLoop = 0;
-bool decrease = false;
+/**
+ * @brief LED window display modes.
+ */
+enum Modes
+{
+  /**
+   * @brief Startup mode - equivalent to system followed by primary mode
+   * 
+   */
+  STARTUP = 0,
 
+  /**
+   * @brief System mode - displays system status
+   */
+  SYSTEM = 1,
+
+  /**
+   * @brief Self test mode - shows LED strip channels
+   */
+  SELF_TEST = 2,
+
+  /**
+   * @brief Raw mode - renders color exactly as given
+   */
+  RAW = 3
+};
+
+/**
+ * @brief Primary operating mode; activates after Wi-Fi connects.
+ */
+const Modes primaryMode = Modes::SELF_TEST;
+
+/**
+ * @brief Current operating mode.
+ */
+Modes currentMode = Modes::STARTUP;
+
+/**
+ * @brief Leds instance.
+ */
+Leds leds;
+
+/**
+ * @brief System instance.
+ */
+System sys(&leds);
+
+/**
+ * @brief System mode instance.
+ */
+ModeSystem modeSystem(&sys, &leds);
+
+/**
+ * @brief Self test mode instance.
+ */
+ModeSelfTest modeSelfTest(&leds);
+
+/**
+ * @brief Raw mode instance.
+ */
+ModeRaw modeRaw(&leds);
+
+/**
+ * @brief Setup function - runs once on start
+ */
 void setup()
 {
   Serial.begin(115200);
   Serial.println("Setup");
-  wifi.setup();
-  ota.setup();
-
-  // Use a lower PWM freq and resolution to minimize CPU time
-  analogWriteFreq(PWM_HZ);
-  analogWriteRange(PWM_RANGE);
-
-  // Pin setup
-  pinMode(PIN_READY_LED, OUTPUT);
-  pinMode(PIN_WHITE_STRIP, OUTPUT);
-  pinMode(PIN_TOP_COLOR_DATA, OUTPUT);
-  pinMode(PIN_BOTTOM_COLOR_DATA, OUTPUT);
-
-  // Initial pin state
-  digitalWrite(PIN_READY_LED, HIGH);
-  analogWrite(PIN_WHITE_STRIP, 0);
-  digitalWrite(PIN_TOP_COLOR_DATA, LOW);
-  digitalWrite(PIN_BOTTOM_COLOR_DATA, LOW);
-
-  // FastLED
-  FastLED.addLeds<WS2812, PIN_TOP_COLOR_DATA, EOrder::BRG>(topLeds, TOP_COLOR_LED_COUNT);
-  FastLED.addLeds<WS2812, PIN_BOTTOM_COLOR_DATA, EOrder::BRG>(bottomLeds, BOTTOM_COLOR_LED_COUNT);
-  FastLED.clear();
-  FastLED.show();
+  sys.setup();
+  leds.setup();
+  modeSystem.start();
 }
 
+/**
+ * @brief Main microprocessor loop.\
+ */
 void loop()
 {
-  wifi.loop();
-  ota.loop();
+  sys.loop();
 
-  unsigned long now = millis();
-
-  // Rollover counters
-  if (lastLoop > now)
+  if (currentMode != Modes::SYSTEM && sys.isAssociated() && sys.getOtaState() != OtaState::Disabled)
   {
-    lastLoop = 0;
+    // If OTA is enabled, force into system mode
+    switchModes(Modes::SYSTEM);
   }
-
-  int tickDelay;
-  switch (MODE)
+  else if (currentMode == Modes::STARTUP && sys.isAssociated())
   {
-  case 0:
-    tickDelay = MODE_0_TICK_MS;
-    break;
-  case 1:
-    tickDelay = MODE_1_TICK_MS;
-    break;
-  case 2:
-    tickDelay = MODE_2_TICK_MS;
-    break;
-  case 3:
-    tickDelay = MODE_3_TICK_MS;
-    break;
-  default:
-    tickDelay = 1000;
-    break;
+    // If we've completed startup, switch into the primary mode
+    switchModes(primaryMode);
   }
+  else if (!sys.isAssociated() && currentMode != Modes::STARTUP)
+  {
+    // We've lost Wi-Fi; startup mode until reconnected
+    switchModes(Modes::STARTUP);
+  }
+}
 
-  if (now - lastLoop < tickDelay)
+/**
+ * @brief Switch to a new operating mode
+ * @param nextMode The new operating mode to switch to
+ */
+void switchModes(Modes nextMode)
+{
+  if (currentMode == nextMode)
   {
     return;
   }
 
-  lastLoop = now;
+  Serial.print("Switching from mode ");
+  Serial.print(currentMode);
+  Serial.print(" to mode ");
+  Serial.println(nextMode);
 
-  switch (MODE)
+  switch (currentMode)
   {
-  case 0:
-    selfTest();
+  case STARTUP:
+  case SYSTEM:
+    modeSystem.stop();
     break;
-  case 1:
-    whitePowerTest();
+  case SELF_TEST:
+    modeSelfTest.stop();
     break;
-  case 2:
-    constantTest();
+  case RAW:
+    modeRaw.stop();
     break;
-  case 3:
-    colorTempTest();
-    break;
-  default:
-    selfTest();
   }
+
+  switch (nextMode)
+  {
+  case STARTUP:
+  case SYSTEM:
+    modeSystem.start();
+    break;
+  case SELF_TEST:
+    modeSelfTest.start();
+    break;
+  case RAW:
+    modeRaw.start();
+    break;
+  }
+
+  currentMode = nextMode;
 }
 
-void selfTest()
-{
-  // Channel swap
-  if (tick > 2)
-  {
-    analogWrite(PIN_WHITE_STRIP, 0);
-    FastLED.clear();
-    FastLED.show();
-    channelIndex = (channelIndex + 1) % 3;
-    tick = 0;
-  }
-
-  // White
-  if (channelIndex == 0)
-  {
-    int duty = (tick + 1) * (tick + 1) * CHANNEL_TEST_WHITE_FACTOR;
-    analogWrite(PIN_WHITE_STRIP, duty);
-  }
-  else
-  {
-
-    // Color
-    CRGB color = CRGB::Blue;
-
-    switch (tick)
-    {
-    case 1:
-      color = CRGB::Red;
-      break;
-    case 2:
-      color = CRGB::Green;
-      break;
-    default:
-      break;
-    }
-
-    int ledCount = (channelIndex == 1 ? TOP_COLOR_LED_COUNT : BOTTOM_COLOR_LED_COUNT);
-    CRGB *leds = (channelIndex == 1 ? topLeds : bottomLeds);
-
-    for (int i = 0; i < ledCount; i++)
-    {
-      leds[i] = color;
-    }
-
-    FastLED.show();
-  }
-
-  tick++;
-}
-
-void whitePowerTest()
-{
-  int steps = WHITE_POWER_TEST_MAX_DUTY / WHITE_POWER_TEST_STEP_SIZE;
-  int holdTicks = 100;
-  int maxTicks = steps + holdTicks;
-
-  if (tick > maxTicks)
-  {
-    decrease = true;
-  }
-  else if (tick < 0)
-  {
-    tick = 0;
-    decrease = false;
-  }
-  else if (tick < steps)
-  {
-    analogWrite(PIN_WHITE_STRIP, tick * WHITE_POWER_TEST_STEP_SIZE);
-  }
-
-  tick = decrease ? tick - 1 : tick + 1;
-}
-
-void constantTest()
-{
-  if (tick > 2)
-  {
-    tick = 0;
-  }
-
-  // Alternate colors
-  CRGB color = CRGB::Blue;
-
-  switch (tick)
-  {
-  case 1:
-    color = CRGB::Red;
-    break;
-  case 2:
-    color = CRGB::Green;
-    break;
-  default:
-    break;
-  }
-
-  writeAllLeds(color);
-
-  FastLED.show();
-
-  int whiteLevel = 1;
-  analogWrite(PIN_WHITE_STRIP, FULL_PANEL_WHITE_LEVEL);
-
-  tick++;
-}
-
-void colorTempTest()
-{
-  int whiteLevel = 0;
-  int colorLevel = 0;
-  CRGB color = CRGB::Black;
-
-  int temps[] = {2800, 3300, 4000, 5000, 6000, 6400, 8000, 9500};
-
-  if (tick > 7)
-  {
-    tick = 0;
-  }
-
-  int targetTemp = temps[tick];
-
-  switch (targetTemp)
-  {
-  case 9500:
-    whiteLevel = 180;
-    colorLevel = 250;
-    color = CRGB::Blue;
-    break;
-  case 8000:
-    whiteLevel = 210;
-    colorLevel = 155;
-    color = CRGB::Blue;
-    break;
-  case 6400:
-    whiteLevel = 210;
-    colorLevel = 0;
-    color = CRGB::Blue;
-    break;
-  case 6000:
-    whiteLevel = 210;
-    colorLevel = 100;
-    //color = CRGB::Red;
-    color = CRGB(100, 50, 0);
-    break;
-  case 5500:
-    whiteLevel = 180;
-    colorLevel = 255;
-    //color = CRGB::Red;
-    color = CRGB(255, 128, 0);
-    break;
-  case 5000:
-    whiteLevel = 85;
-    colorLevel = 255;
-    //color = CRGB::Red;
-    color = CRGB(255, 128, 0);
-    break;
-  case 4000:
-    whiteLevel = 29;
-    colorLevel = 255;
-    //color = CRGB::Red;
-    color = CRGB(255, 128, 0);
-    break;
-  case 3300:
-    whiteLevel = 15;
-    colorLevel = 255;
-    //color = CRGB::Red;
-    color = CRGB(255, 96, 0);
-    break;
-  case 2800:
-    whiteLevel = 8;
-    colorLevel = 255;
-    //color = CRGB::Red;
-    color = CRGB(255, 64, 0);
-    break;
-  default:
-    whiteLevel = 0;
-    colorLevel = 0;
-  }
-
-  FastLED.setBrightness(colorLevel);
-  writeAllLeds(color);
-  FastLED.show();
-  analogWrite(PIN_WHITE_STRIP, whiteLevel);
-  tick++;
-}
-
-void writeAllLeds(CRGB color)
-{
-  for (int i = 0; i < TOP_COLOR_LED_COUNT; i++)
-  {
-    topLeds[i] = color;
-  }
-  for (int j = 0; j < BOTTOM_COLOR_LED_COUNT; j++)
-  {
-    bottomLeds[j] = color;
-  }
-}
+// TODO - VERY rough color temperature conversions. Varying intensities.
+//   case 9500:
+//     whiteLevel = 180;
+//     colorLevel = 250;
+//     color = CRGB::Blue;
+//     break;
+//   case 8000:
+//     whiteLevel = 210;
+//     colorLevel = 155;
+//     color = CRGB::Blue;
+//     break;
+//   case 6400:
+//     whiteLevel = 210;
+//     colorLevel = 0;
+//     color = CRGB::Blue;
+//     break;
+//   case 6000:
+//     whiteLevel = 210;
+//     colorLevel = 100;
+//     color = CRGB(100, 50, 0);
+//     break;
+//   case 5500:
+//     whiteLevel = 180;
+//     colorLevel = 255;
+//     color = CRGB(255, 128, 0);
+//     break;
+//   case 5000:
+//     whiteLevel = 85;
+//     colorLevel = 255;
+//     color = CRGB(255, 128, 0);
+//     break;
+//   case 4000:
+//     whiteLevel = 29;
+//     colorLevel = 255;
+//     color = CRGB(255, 128, 0);
+//     break;
+//   case 3300:
+//     whiteLevel = 15;
+//     colorLevel = 255;
+//     color = CRGB(255, 96, 0);
+//     break;
+//   case 2800:
+//     whiteLevel = 8;
+//     colorLevel = 255;
+//     color = CRGB(255, 64, 0);
+//     break;
