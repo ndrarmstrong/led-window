@@ -1,17 +1,17 @@
-import {expect, test} from '@oclif/test'
+import {expect, test} from '@oclif/test';
 
 describe('configure', () => {
   test
-  .stdout()
-  .command(['configure'])
-  .it('runs hello', ctx => {
-    expect(ctx.stdout).to.contain('hello world')
-  })
+    .stdout()
+    .command(['configure'])
+    .it('stores credentials', ctx => {
+      expect(ctx.stdout).to.contain('saved');
+    });
 
   test
-  .stdout()
-  .command(['configure', '--name', 'jeff'])
-  .it('runs hello --name jeff', ctx => {
-    expect(ctx.stdout).to.contain('hello jeff')
-  })
-})
+    .stdout()
+    .command(['configure', '--clear'])
+    .it('runs clear', ctx => {
+      expect(ctx.stdout).to.contain('cleared');
+    });
+});

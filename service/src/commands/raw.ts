@@ -1,4 +1,4 @@
-import {Command, flags} from '@oclif/command'
+import {Command, flags} from '@oclif/command';
 
 export default class Raw extends Command {
   static description = 'Configure raw mode'
@@ -13,13 +13,13 @@ export default class Raw extends Command {
 
   static args = [{name: 'file'}]
 
-  async run() {
-    const {args, flags} = this.parse(Raw)
+  async run() : Promise<void> {
+    const {args, flags} = this.parse(Raw);
 
-    const name = flags.name ?? 'world'
-    this.log(`hello ${name} from /home/node/service/src/commands/raw.ts`)
+    const name = flags.name ?? 'world';
+    this.log(`hello ${name} from /home/node/service/src/commands/raw.ts`);
     if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
+      this.log(`you input --force and --file: ${args.file}`);
     }
   }
 }

@@ -1,4 +1,4 @@
-import {Command, flags} from '@oclif/command'
+import {Command, flags} from '@oclif/command';
 
 export default class Describe extends Command {
   static description = 'Describe the state of a resource'
@@ -13,13 +13,13 @@ export default class Describe extends Command {
 
   static args = [{name: 'file'}]
 
-  async run() {
-    const {args, flags} = this.parse(Describe)
+  async run() : Promise<void> {
+    const {args, flags} = this.parse(Describe);
 
-    const name = flags.name ?? 'world'
-    this.log(`hello ${name} from /home/node/service/src/commands/describe.ts`)
+    const name = flags.name ?? 'world';
+    this.log(`hello ${name} from /home/node/service/src/commands/describe.ts`);
     if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
+      this.log(`you input --force and --file: ${args.file}`);
     }
   }
 }

@@ -1,4 +1,4 @@
-import {Command, flags} from '@oclif/command'
+import {Command, flags} from '@oclif/command';
 
 export default class Serve extends Command {
   static description = 'Start the HTTP server and MQTT broker; runs until stopped'
@@ -13,13 +13,13 @@ export default class Serve extends Command {
 
   static args = [{name: 'file'}]
 
-  async run() {
-    const {args, flags} = this.parse(Serve)
+  async run() : Promise<void> {
+    const {args, flags} = this.parse(Serve);
 
-    const name = flags.name ?? 'world'
-    this.log(`hello ${name} from /home/nicholas/git/led-window/service/src/commands/serve.ts`)
+    const name = flags.name ?? 'world';
+    this.log(`hello ${name} from /home/nicholas/git/led-window/service/src/commands/serve.ts`);
     if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
+      this.log(`you input --force and --file: ${args.file}`);
     }
   }
 }

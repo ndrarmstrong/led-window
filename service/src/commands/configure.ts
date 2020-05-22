@@ -1,25 +1,21 @@
-import {Command, flags} from '@oclif/command'
+import {Command, flags} from '@oclif/command';
 
 export default class Configure extends Command {
-  static description = 'Manage personal credentials'
+  static description = 'Manage personal credentials';
 
   static flags = {
     help: flags.help({char: 'h'}),
-    // flag with a value (-n, --name=VALUE)
-    name: flags.string({char: 'n', description: 'name to print'}),
-    // flag with no value (-f, --force)
-    force: flags.boolean({char: 'f'}),
-  }
+    clear: flags.boolean({description:"Clear saved credentials"})
+  };
 
-  static args = [{name: 'file'}]
+  async run() : Promise<void> {
+    const {flags} = this.parse(Configure);
 
-  async run() {
-    const {args, flags} = this.parse(Configure)
-
-    const name = flags.name ?? 'world'
-    this.log(`hello ${name} from /home/node/service/src/commands/configure.ts`)
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
+    if (flags.clear) {
+      this.log("Saved credentials cleared");
+      return;
     }
+
+    this.log("Credentials saved to ~/.ledwincmd/credentials");
   }
 }
