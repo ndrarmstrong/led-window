@@ -1,0 +1,10 @@
+version: '3'
+services:
+  window-dev:
+    build:
+      context: .
+    image: window-dev:latest
+    hostname: window-dev
+    network_mode: host
+    volumes:
+      - ./service:/home/node/service
