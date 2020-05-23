@@ -27,10 +27,11 @@ export default class MqttClient {
       });
     });
 
-    const resTopic = `${topic}/res`;
+    const reqTopic = `${topic}/req`;
+    const resTopic = `${topic}`;
     await client.subscribe(resTopic);
-    console.log(`Sending request to ${topic}`);
-    await client.publish(topic, message);
+    console.log(`Sending request to ${reqTopic}`);
+    await client.publish(reqTopic, message);
     console.log(`Waiting for response on ${resTopic}`);
 
     let resBody: T | undefined = undefined;
