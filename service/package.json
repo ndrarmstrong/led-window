@@ -61,7 +61,12 @@
     "bin": "ledwinctl",
     "plugins": [
       "@oclif/plugin-help"
-    ]
+    ],
+    "topics": {
+      "window": {
+        "description": "Configure window modes"
+      }
+    }
   },
   "private": true,
   "repository": "ndrarmstrong/led-window",

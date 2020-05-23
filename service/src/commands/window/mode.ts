@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command';
 
 export default class Mode extends Command {
-  static description = 'Put a resource into a specific mode';
+  static description = 'Activate a specific mode';
 
   static flags = {
     help: flags.help({ char: 'h' }),
