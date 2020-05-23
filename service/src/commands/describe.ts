@@ -1,25 +1,43 @@
 import { Command, flags } from '@oclif/command';
+import { DescribeResponse } from '../types/describe';
+import MqttClient from '../lib/mqttClient';
 
 export default class Describe extends Command {
-  static description = 'Describe the state of a resource';
+  static description = 'Describe the state of a device';
 
   static flags = {
     help: flags.help({ char: 'h' }),
-    // flag with a value (-n, --name=VALUE)
-    name: flags.string({ char: 'n', description: 'name to print' }),
-    // flag with no value (-f, --force)
-    force: flags.boolean({ char: 'f' }),
+    port: flags.integer({ description: 'Server port', default: 1883 }),
+    address: flags.string({ description: 'Server address', default: '127.0.0.1' }),
+    method: flags.string({ description: 'Request method', options: ['http', 'mqtt'], default: 'mqtt' }),
   };
 
-  static args = [{ name: 'file' }];
+  static args = [{ name: 'device', description: 'Device ID', required: true }];
 
+  /**
+   * Run command
+   */
   async run(): Promise<void> {
     const { args, flags } = this.parse(Describe);
 
-    const name = flags.name ?? 'world';
-    this.log(`hello ${name} from /home/node/service/src/commands/describe.ts`);
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`);
+    let res: DescribeResponse;
+
+    try {
+      if (flags.method == 'mqtt') {
+        const reqTopic = `device/${args.device}/describe`;
+        res = await MqttClient.singleRequestResponse(flags.address, flags.port, reqTopic, '');
+      } else {
+        this.error(`Unsupported request method: ${flags.method}`);
+      }
+    } catch (err) {
+      this.error(`Request failed: ${err}`);
     }
+
+    this.log('---');
+    this.log(`Device ID: ${res.device}`);
+    this.log(`Free heap: ${res.freeHeapB} B`);
+    this.log(`Sketch size: ${res.sketchSizeB} B`);
+    this.log(`Free sketch space: ${res.freeSketchSpaceB} B`);
+    this.log(`OTA Enabled: ${res.otaEnabled}`);
   }
 }

@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command';
 
 export default class Sys extends Command {
-  static description = 'Configure system functions of a resource';
+  static description = 'Configure system functions of a device';
 
   static flags = {
     help: flags.help({ char: 'h' }),

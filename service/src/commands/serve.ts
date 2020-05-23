@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command';
-import Broker from '../broker';
+import Broker from '../lib/broker';
 
 /**
  * Start the MQTT broker and HTTP server

@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command';
 
 export default class Log extends Command {
-  static description = 'Tail the logs of a resource';
+  static description = 'Tail the logs of a device';
 
   static flags = {
     help: flags.help({ char: 'h' }),

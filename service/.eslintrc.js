@@ -20,6 +20,6 @@ module.exports = {
     'node/no-unsupported-features/es-syntax': ['error', { ignores: ['modules'] }],
     'node/no-missing-import': 'off',
     semi: ['error'],
-    'prettier/prettier': 'error',
+    'prettier/prettier': 'warn',
   },
 };

@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command';
 
 export default class Get extends Command {
-  static description = 'List resources';
+  static description = 'List devices';
 
   static flags = {
     help: flags.help({ char: 'h' }),

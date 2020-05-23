@@ -12,6 +12,7 @@
     "@oclif/config": "^1.15.1",
     "@oclif/plugin-help": "^3.0.1",
     "aedes": "^0.42.0",
+    "async-mqtt": "^2.5.0",
     "cli-ux": "^5.4.6",
     "tslib": "^2.0.0"
   },
