@@ -9,7 +9,7 @@ export default class Serve extends Command {
 
   static flags = {
     help: flags.help({ char: 'h' }),
-    port: flags.integer({ description: 'Port to listen on', default: 4000 }),
+    port: flags.integer({ description: 'Port to listen on', default: 1883 }),
     host: flags.string({ description: 'Host address', default: '0.0.0.0' }),
   };
 
