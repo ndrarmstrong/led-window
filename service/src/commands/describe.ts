@@ -1,18 +1,25 @@
-import { Command, flags } from '@oclif/command';
 import { DescribeResponse } from '../types/describe';
 import MqttClient from '../lib/mqttClient';
+import DeviceCommand from '../lib/deviceCommand';
 
-export default class Describe extends Command {
+/**
+ * Describe the state of a device
+ */
+export default class Describe extends DeviceCommand {
   static description = 'Describe the state of a device';
+  static flags = { ...DeviceCommand.flags };
+  static args = [Describe.deviceArg];
 
-  static flags = {
-    help: flags.help({ char: 'h' }),
-    port: flags.integer({ description: 'Server port', default: 1883 }),
-    address: flags.string({ description: 'Server address', default: '127.0.0.1' }),
-    method: flags.string({ description: 'Request method', options: ['http', 'mqtt'], default: 'mqtt' }),
-  };
-
-  static args = [{ name: 'device', description: 'Device ID', required: true }];
+  /**
+   * Reply with a sample message
+   */
+  selfReply(): DescribeResponse {
+    return {
+      device: 'ABC123',
+      temperatureC: 22,
+      relativeHumidityPct: 40,
+    };
+  }
 
   /**
    * Run command
@@ -25,7 +32,13 @@ export default class Describe extends Command {
     try {
       if (flags.method == 'mqtt') {
         const reqTopic = `device/${args.device}/describe`;
-        res = await MqttClient.singleRequestResponse(flags.address, flags.port, reqTopic, '');
+        res = await MqttClient.singleRequestResponse(
+          flags.address,
+          flags.port,
+          reqTopic,
+          '',
+          flags.reply ? this.selfReply : undefined
+        );
       } else {
         this.error(`Unsupported request method: ${flags.method}`);
       }

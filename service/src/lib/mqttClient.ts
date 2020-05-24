@@ -13,7 +13,13 @@ export default class MqttClient {
    * @param topic Topic to request on
    * @param message Request message
    */
-  static async singleRequestResponse<T>(address: string, port: number, topic: string, message: string): Promise<T> {
+  static async singleRequestResponse<T>(
+    address: string,
+    port: number,
+    topic: string,
+    message: string,
+    selfReply?: () => T
+  ): Promise<T> {
     const timeoutMs = 10 * 1000;
     const url = `mqtt://${address}:${port}`;
     console.log(`Connecting to MQTT broker ${url}`);
@@ -35,6 +41,14 @@ export default class MqttClient {
     console.log(`Sending request to ${reqTopic}`);
     await client.publish(reqTopic, message);
     console.log(`Waiting for response on ${resTopic}`);
+
+    // Generate a reply to one's own request by publishing
+    // sample data on the response topic (for testing)
+    if (selfReply) {
+      setTimeout(() => {
+        client.publish(resTopic, JSON.stringify(selfReply()));
+      }, 1000);
+    }
 
     let resBody: T | undefined = undefined;
 
