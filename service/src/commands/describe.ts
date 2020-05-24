@@ -39,5 +39,9 @@ export default class Describe extends Command {
     this.log(`Sketch size: ${res.sketchSizeB} B`);
     this.log(`Free sketch space: ${res.freeSketchSpaceB} B`);
     this.log(`OTA Enabled: ${res.otaEnabled}`);
+    if (res.temperatureC && res.relativeHumidityPct) {
+      this.log(`Temperature: ${res.temperatureC}°C`);
+      this.log(`Humidity: ${res.relativeHumidityPct}%`);
+    }
   }
 }

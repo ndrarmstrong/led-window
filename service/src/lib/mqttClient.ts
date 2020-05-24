@@ -4,6 +4,8 @@ import { connectAsync } from 'async-mqtt';
  * MQTT client and associated utilities
  */
 export default class MqttClient {
+  static topicNamespace = 'ledwin';
+
   /**
    * Connect, send a request, and wait for a response.
    * @param address Broker address
@@ -27,8 +29,8 @@ export default class MqttClient {
       });
     });
 
-    const reqTopic = `${topic}/req`;
-    const resTopic = `${topic}`;
+    const reqTopic = `${MqttClient.topicNamespace}/${topic}/req`;
+    const resTopic = `${MqttClient.topicNamespace}/${topic}`;
     await client.subscribe(resTopic);
     console.log(`Sending request to ${reqTopic}`);
     await client.publish(reqTopic, message);

@@ -26,4 +26,14 @@ export interface DescribeResponse {
    * Whether OTA updates are enabled
    */
   otaEnabled?: boolean;
+
+  /**
+   * The device temperture, in celcius.
+   */
+  temperatureC?: number;
+
+  /**
+   * The relative humidity at the device, in percent.
+   */
+  relativeHumidityPct?: number;
 }
