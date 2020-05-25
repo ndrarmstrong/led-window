@@ -11,15 +11,6 @@ export default class Sys extends DeviceCommand {
   static flags = { ...DeviceCommand.flags };
   static args = [Sys.deviceArg, { name: 'action', description: 'System action', required: true, options: ['ota'] }];
 
-  /**
-   * Reply with a sample message
-   */
-  selfReply(): Acknowledgement {
-    return {
-      result: AcknowledgeResponses.Success,
-    };
-  }
-
   /** Run command */
   async run(): Promise<void> {
     const { args, flags } = this.parse(Sys);
@@ -37,7 +28,7 @@ export default class Sys extends DeviceCommand {
           flags.port,
           reqTopic,
           JSON.stringify(body),
-          flags.reply ? this.selfReply : undefined
+          flags.reply ? this.selfAcknowledge : undefined
         );
       } else {
         this.error(`Unsupported request method: ${flags.method}`);
@@ -50,7 +41,7 @@ export default class Sys extends DeviceCommand {
     if (res.result === AcknowledgeResponses.Success) {
       this.log('OTA Enabled');
     } else {
-      this.error('Failed to enable OTA');
+      this.error(`Failed to enable OTA: ${res.result}`);
     }
   }
 }

@@ -1,4 +1,5 @@
 import { Command, flags } from '@oclif/command';
+import { AcknowledgeResponses, Acknowledgement } from '../types/ack';
 
 /**
  * Base type for device commands - can be requested over MQTT or HTTP.
@@ -20,5 +21,14 @@ export default abstract class DeviceCommand extends Command {
    */
   protected deviceTopic(id: string): string {
     return `device/${id}`;
+  }
+
+  /**
+   * Reply with a sample acknowledgement
+   */
+  protected selfAcknowledge(): Acknowledgement {
+    return {
+      result: AcknowledgeResponses.Success,
+    };
   }
 }

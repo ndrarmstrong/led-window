@@ -33,7 +33,7 @@ export default class RawRequest {
    * Set red level.
    */
   set r(level: number) {
-    if (level < 0 || level > 255) {
+    if (!(level >= 0 && level <= 255)) {
       throw new Error(`Red level '${level}' out of range; must be 0-255`);
     }
     this._r = level;
@@ -50,7 +50,7 @@ export default class RawRequest {
    * Set green level.
    */
   set g(level: number) {
-    if (level < 0 || level > 255) {
+    if (!(level >= 0 && level <= 255)) {
       throw new Error(`Green level '${level}' out of range; must be 0-255`);
     }
     this._g = level;
@@ -67,7 +67,7 @@ export default class RawRequest {
    * Set blue level.
    */
   set b(level: number) {
-    if (level < 0 || level > 255) {
+    if (!(level >= 0 && level <= 255)) {
       throw new Error(`Blue level '${level}' out of range; must be 0-255`);
     }
     this._b = level;
@@ -84,7 +84,7 @@ export default class RawRequest {
    * Set daylight white level.
    */
   set dw(level: number) {
-    if (level < 0 || level > 255) {
+    if (!(level >= 0 && level <= 255)) {
       throw new Error(`Daylight white level '${level}' out of range; must be 0-255`);
     }
     this._dw = level;
