@@ -1,5 +1,6 @@
 import { Command, flags } from '@oclif/command';
 import { AcknowledgeResponses, Acknowledgement } from '../types/ack';
+import ClientConfig from './clientConfig';
 
 /**
  * Base type for device commands - can be requested over MQTT or HTTP.
@@ -30,5 +31,14 @@ export default abstract class DeviceCommand extends Command {
     return {
       result: AcknowledgeResponses.Success,
     };
+  }
+
+  /** Get the configured access key */
+  protected async getAccessKey(): Promise<string> {
+    try {
+      return await ClientConfig.readCreds();
+    } catch {
+      this.error('Unable to read access key; run `ledwinctrl configure` to set');
+    }
   }
 }

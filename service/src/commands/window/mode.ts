@@ -56,6 +56,7 @@ export default class Mode extends DeviceCommand {
           flags.port,
           reqTopic,
           JSON.stringify(body),
+          await this.getAccessKey(),
           flags.reply ? this.selfAcknowledge : undefined
         );
       } else {

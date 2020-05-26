@@ -60,6 +60,7 @@ export default class Daylight extends DeviceCommand {
           flags.port,
           reqTopic,
           JSON.stringify(body),
+          await this.getAccessKey(),
           flags.reply ? this.selfAcknowledge : undefined
         );
       } else {

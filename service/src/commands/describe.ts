@@ -37,6 +37,7 @@ export default class Describe extends DeviceCommand {
           flags.port,
           reqTopic,
           '',
+          await this.getAccessKey(),
           flags.reply ? this.selfReply : undefined
         );
       } else {
