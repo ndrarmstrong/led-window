@@ -52,9 +52,10 @@ class System
 {
 public:
     /**
-     * @brief Construct a new System object
+     * @brief Returns a reference to the global system manager.
+     * @return The global system manager
      */
-    System(Leds *leds);
+    static System &get();
 
     /**
      * @brief Run system setup functions
@@ -106,9 +107,9 @@ public:
 
 private:
     /**
-     * @brief Leds instance.
+     * @brief Private constructor - only one instance.
      */
-    Leds *leds;
+    System();
 
     /**
      * @brief The state of OTA updates.

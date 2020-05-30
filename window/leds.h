@@ -41,9 +41,10 @@ class Leds
 {
 public:
     /**
-     * @brief Create an instance of the LEDs class
+     * @brief Returns a reference to the global leds module.
+     * @return The global leds module
      */
-    Leds();
+    static Leds &get();
 
     /**
      * @brief Initial setup of LEDs and output pins.
@@ -143,6 +144,11 @@ public:
     int bottomLedsSize() { return Config::BOTTOM_COLOR_LED_COUNT; }
 
 private:
+    /**
+     * @brief Private constructor - only one instance.
+     */
+    Leds();
+
     /**
      * @brief Approximately how long it takes FastLED to write all LEDs, in us
      */

@@ -6,6 +6,7 @@
 #include "system.h"
 #include "mqtt.h"
 #include "leds.h"
+#include "log.h"
 #include "modeSystem.h"
 #include "modeSelfTest.h"
 #include "modeRaw.h"
@@ -62,34 +63,19 @@ const Modes primaryMode = Modes::OFF;
 Modes currentMode = Modes::STARTUP;
 
 /**
- * @brief Leds instance.
- */
-Leds leds;
-
-/**
- * @brief System instance.
- */
-System sys(&leds);
-
-/**
- * @brief MQTT client instance.
- */
-Mqtt mqtt(&sys);
-
-/**
  * @brief System mode instance.
  */
-ModeSystem modeSystem(&sys, &mqtt, &leds);
+ModeSystem modeSystem(&System::get(), &Mqtt::get(), &Leds::get());
 
 /**
  * @brief Self test mode instance.
  */
-ModeSelfTest modeSelfTest(&leds);
+ModeSelfTest modeSelfTest(&Leds::get());
 
 /**
  * @brief Raw mode instance.
  */
-ModeRaw modeRaw(&leds);
+ModeRaw modeRaw(&Leds::get());
 
 /**
  * @brief Setup function - runs once on start
@@ -98,8 +84,8 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println("Setup");
-  sys.setup();
-  leds.setup();
+  System::get().setup();
+  Leds::get().setup();
   modeSystem.start();
 }
 
@@ -108,20 +94,20 @@ void setup()
  */
 void loop()
 {
-  sys.loop();
-  mqtt.loop();
+  System::get().loop();
+  Mqtt::get().loop();
 
-  if (currentMode != Modes::SYSTEM && sys.isAssociated() && sys.getOtaState() != OtaState::Disabled)
+  if (currentMode != Modes::SYSTEM && System::get().isAssociated() && System::get().getOtaState() != OtaState::Disabled)
   {
     // If OTA is enabled, force into system mode
     switchModes(Modes::SYSTEM);
   }
-  else if (currentMode == Modes::STARTUP && sys.isAssociated() && mqtt.isConnected())
+  else if (currentMode == Modes::STARTUP && System::get().isAssociated() && Mqtt::get().isConnected())
   {
     // If we've completed startup, switch into the primary mode
     switchModes(primaryMode);
   }
-  else if (!sys.isAssociated() && currentMode != Modes::STARTUP)
+  else if (!System::get().isAssociated() && currentMode != Modes::STARTUP)
   {
     // We've lost Wi-Fi; startup mode until reconnected
     switchModes(Modes::STARTUP);
@@ -171,7 +157,7 @@ void switchModes(Modes nextMode)
     modeRaw.start();
     break;
   default:
-    leds.reset();
+    Leds::get().reset();
   }
 
   currentMode = nextMode;

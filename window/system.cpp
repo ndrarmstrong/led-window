@@ -1,9 +1,20 @@
 #include "system.h"
 
-System::System(Leds *leds)
+System::System()
 {
-    this->leds = leds;
     dht = new DHT_Unified(Config::PIN_TEMP_SENSOR, DHT11);
+}
+
+System &System::get()
+{
+    static System *global = 0;
+
+    if (!global)
+    {
+        global = new System();
+    }
+
+    return *global;
 }
 
 void System::setup()

@@ -2,6 +2,18 @@
 
 Leds::Leds() {}
 
+Leds &Leds::get()
+{
+    static Leds *global = 0;
+
+    if (!global)
+    {
+        global = new Leds();
+    }
+
+    return *global;
+}
+
 void Leds::setup()
 {
     // Use a lower PWM freq and resolution to minimize CPU time

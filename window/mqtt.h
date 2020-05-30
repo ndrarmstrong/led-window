@@ -14,10 +14,10 @@ class Mqtt
 {
 public:
     /**
-     * @brief Construct a new Mqtt object
-     * @param sys System instance
+     * @brief Returns a reference to the global mqtt connection.
+     * @return The global mqtt connection.
      */
-    Mqtt(System *sys);
+    static Mqtt &get();
 
     /**
      * @brief Run MQTT loop functions
@@ -29,11 +29,19 @@ public:
      */
     bool isConnected() { return mqttClient.connected(); }
 
+    /**
+     * @brief Publish a message to a topic
+     * 
+     * @param topic Topic to publish to, not including device prefix
+     * @param message Message to publish
+     */
+    void publish(const char *topic, const char *message);
+
 private:
     /**
-     * @brief System instance.
+     * @brief Private constructor - only one instance
      */
-    System *sys;
+    Mqtt();
 
     /**
      * @brief ESP Wi-Fi client instance.
