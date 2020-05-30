@@ -53,6 +53,43 @@ public:
     static constexpr const char *const WIFI_CREDENTIAL = ENV_WIFI_CREDENTIAL;
 
     //
+    // MQTT Configuration
+    //
+
+    /**
+     * @brief MQTT broker address (domain name)
+     */
+    static constexpr const char *const MQTT_BROKER_ADDRESS = ENV_MQTT_BROKER_ADDRESS;
+
+    /**
+     * @brief MQTT broker port
+     */
+    static const int MQTT_BROKER_PORT = 1883;
+
+    /**
+     * @brief MQTT broker secret for the device
+     */
+    static constexpr const char *const MQTT_BROKER_SECRET = ENV_MQTT_BROKER_SECRET;
+
+    /**
+     * @brief MQTT broker connect timeout, in seconds
+     */
+    static const int MQTT_BROKER_CONNECT_TIMEOUT_S = 10;
+
+    /**
+     * @brief MQTT maxmimum message size
+     * 
+     * This defaults to 256B, likely to reduce memory consumption.  We're serializing JSON and sending log messages, so
+     * expand to give us a bit more working space.
+     */
+    static const int MQTT_MESSAGE_SIZE_B = 1000;
+
+    /**
+     * @brief MQTT keepalive interval
+     */
+    static const int MQTT_KEEPALIVE_S = 60;
+
+    //
     // Leds configuration
     //
 

@@ -98,6 +98,12 @@ public:
      */
     float getHumidity() { return humidity; }
 
+    /**
+     * @brief Get the device ID as a hex string
+     * @return String The device ID as a hex string
+     */
+    String getDeviceId() { return String(ESP.getChipId(), HEX); }
+
 private:
     /**
      * @brief Leds instance.

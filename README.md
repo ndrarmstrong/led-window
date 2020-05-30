@@ -52,6 +52,8 @@ You will need to import the following libraries in addition to the board:
 
 * Adafruit Unified Sensor (1.1.2) and DHT sensor library (1.3.9)
 * FastLED (3.3.3)
+* PubSubClient (2.8.0)
+* ArduinoJson (6.15.2)
 
 ### node.js development
 

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Ticker.h>
 #include "system.h"
+#include "mqtt.h"
 #include "leds.h"
 
 /**
@@ -19,7 +20,7 @@ public:
      * @param system System instance
      * @param leds Leds instance
      */
-    ModeSystem(System *system, Leds *leds);
+    ModeSystem(System *system, Mqtt *mqtt, Leds *leds);
 
     /**
      * @brief Start running system mode.
@@ -32,6 +33,9 @@ public:
     void stop();
 
 private:
+    /**
+     * @brief How many frames per second the spinners render at.
+     */
     static const int FRAMES_PER_SECOND = 24;
 
     /**
@@ -43,6 +47,11 @@ private:
      * @brief System instance.
      */
     System *system;
+
+    /**
+     * @brief Mqtt instance.
+     */
+    Mqtt *mqtt;
 
     /**
      * @brief Leds instance.

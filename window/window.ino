@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "config.h"
 #include "system.h"
+#include "mqtt.h"
 #include "leds.h"
 #include "modeSystem.h"
 #include "modeSelfTest.h"
@@ -15,41 +16,45 @@
 enum Modes
 {
   /**
-   * @brief Startup mode - equivalent to system followed by primary mode
-   * 
+   * @brief Window off.
    */
-  STARTUP = 0,
+  OFF = 0,
+
+  /**
+   * @brief Startup mode - equivalent to system followed by primary mode
+   */
+  STARTUP = 1,
 
   /**
    * @brief System mode - displays system status
    */
-  SYSTEM = 1,
+  SYSTEM = 2,
 
   /**
    * @brief Self test mode - shows LED strip channels
    */
-  SELF_TEST = 2,
+  SELF_TEST = 3,
 
   /**
    * @brief Raw mode - renders color exactly as given
    */
-  RAW = 3
+  RAW = 4,
 
   /**
    * @brief Daylight mode - renders outside color
    */
-  DAYLIGHT = 3
+  DAYLIGHT = 5,
 
   /**
    * @brief Stained glass mode - emulate a stained glass window
    */
-  STAINED_GLASS = 3
+  STAINED_GLASS = 6
 };
 
 /**
  * @brief Primary operating mode; activates after Wi-Fi connects.
  */
-const Modes primaryMode = Modes::SELF_TEST;
+const Modes primaryMode = Modes::OFF;
 
 /**
  * @brief Current operating mode.
@@ -67,9 +72,14 @@ Leds leds;
 System sys(&leds);
 
 /**
+ * @brief MQTT client instance.
+ */
+Mqtt mqtt(&sys);
+
+/**
  * @brief System mode instance.
  */
-ModeSystem modeSystem(&sys, &leds);
+ModeSystem modeSystem(&sys, &mqtt, &leds);
 
 /**
  * @brief Self test mode instance.
@@ -99,13 +109,14 @@ void setup()
 void loop()
 {
   sys.loop();
+  mqtt.loop();
 
   if (currentMode != Modes::SYSTEM && sys.isAssociated() && sys.getOtaState() != OtaState::Disabled)
   {
     // If OTA is enabled, force into system mode
     switchModes(Modes::SYSTEM);
   }
-  else if (currentMode == Modes::STARTUP && sys.isAssociated())
+  else if (currentMode == Modes::STARTUP && sys.isAssociated() && mqtt.isConnected())
   {
     // If we've completed startup, switch into the primary mode
     switchModes(primaryMode);
@@ -159,6 +170,8 @@ void switchModes(Modes nextMode)
   case RAW:
     modeRaw.start();
     break;
+  default:
+    leds.reset();
   }
 
   currentMode = nextMode;

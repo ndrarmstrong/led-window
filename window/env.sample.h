@@ -10,4 +10,8 @@
 // OTA
 #define ENV_OTA_PASSWORD "GHI"
 
+// MQTT
+#define ENV_MQTT_BROKER_ADDRESS "broker.example.com"
+#define ENV_MQTT_BROKER_SECRET "JKL"
+
 #endif

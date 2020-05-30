@@ -5,9 +5,10 @@
 // MQTT state
 // System temperature [G - - - W - - - - - - R]
 
-ModeSystem::ModeSystem(System *system, Leds *leds)
+ModeSystem::ModeSystem(System *system, Mqtt *mqtt, Leds *leds)
 {
     this->system = system;
+    this->mqtt = mqtt;
     this->leds = leds;
 }
 
@@ -45,6 +46,7 @@ void ModeSystem::animateState()
     uint8_t mqttHue = 160;
     uint8_t otaHue = 85;
 
+    // Wi-Fi spinner
     if (!system->isAssociated())
     {
         animateSpinner(wifiStart, wifiHue);
@@ -54,6 +56,21 @@ void ModeSystem::animateState()
         stopSpinner(wifiStart, wifiHue);
     }
 
+    // MQTT spinner
+    if (!system->isAssociated())
+    {
+        clearSpinner(mqttStart);
+    }
+    else if (!mqtt->isConnected())
+    {
+        animateSpinner(mqttStart, mqttHue);
+    }
+    else
+    {
+        stopSpinner(mqttStart, mqttHue);
+    }
+
+    // OTA spinner
     switch (system->getOtaState())
     {
     case OtaState::Enabled:
