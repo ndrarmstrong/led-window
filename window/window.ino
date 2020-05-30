@@ -34,6 +34,16 @@ enum Modes
    * @brief Raw mode - renders color exactly as given
    */
   RAW = 3
+
+  /**
+   * @brief Daylight mode - renders outside color
+   */
+  DAYLIGHT = 3
+
+  /**
+   * @brief Stained glass mode - emulate a stained glass window
+   */
+  STAINED_GLASS = 3
 };
 
 /**
