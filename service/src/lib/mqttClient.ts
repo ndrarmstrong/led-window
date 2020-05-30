@@ -5,23 +5,15 @@ import { connectAsync, AsyncMqttClient } from 'async-mqtt';
  */
 export default class MqttClient {
   static topicNamespace = 'ledwin';
+  static timeoutMs = 10 * 1000;
 
   /**
-   * Connect, send a request, and wait for a response.
+   * Connect to MQTT broker
    * @param address Broker address
    * @param port Broker port
-   * @param topic Topic to request on
-   * @param message Request message
+   * @param apiKey API key for accessing broker
    */
-  static async singleRequestResponse<T>(
-    address: string,
-    port: number,
-    topic: string,
-    message: string,
-    apiKey: string,
-    selfReply?: () => T
-  ): Promise<T> {
-    const timeoutMs = 10 * 1000;
+  static async connectToBroker(address: string, port: number, apiKey: string): Promise<AsyncMqttClient> {
     const url = `mqtt://${address}:${port}`;
     console.log(`Connecting to MQTT broker ${url}`);
 
@@ -30,7 +22,7 @@ export default class MqttClient {
       connectTimeoutId = setTimeout(() => {
         console.log('Reject');
         reject('Timeout waiting for connect');
-      }, timeoutMs);
+      }, MqttClient.timeoutMs);
     });
     const clientPromise = connectAsync(url, {
       username: 'api',
@@ -45,10 +37,32 @@ export default class MqttClient {
       clearTimeout(connectTimeoutId);
     }
 
+    return client;
+  }
+
+  /**
+   * Connect, send a request, and wait for a response.
+   * @param address Broker address
+   * @param port Broker port
+   * @param topic Topic to request on
+   * @param message Request message
+   * @param apiKey API key for accessing broker
+   * @param selfReply Function to use to self-reply to request on response topic
+   */
+  static async singleRequestResponse<T>(
+    address: string,
+    port: number,
+    topic: string,
+    message: string,
+    apiKey: string,
+    selfReply?: () => T
+  ): Promise<T> {
+    const client = await MqttClient.connectToBroker(address, port, apiKey);
+
     const resPromise = new Promise<Buffer>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject('Timeout waiting for response');
-      }, timeoutMs);
+      }, MqttClient.timeoutMs);
       client.on('message', (_topic, resMessage) => {
         clearTimeout(timeout);
         resolve(resMessage);

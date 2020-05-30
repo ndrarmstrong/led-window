@@ -1,4 +1,4 @@
-import DeviceCommand from '../../lib/deviceCommand';
+import DeviceRequestCommand from '../../lib/deviceRequestCommand';
 import { AcknowledgeResponses, Acknowledgement } from '../../types/ack';
 import { WindowModePayload, WindowModes } from '../../types/mode';
 import MqttClient from '../../lib/mqttClient';
@@ -6,9 +6,9 @@ import MqttClient from '../../lib/mqttClient';
 /**
  * Activates a specific window mode
  */
-export default class Mode extends DeviceCommand {
+export default class Mode extends DeviceRequestCommand {
   static description = 'Activate a specific mode';
-  static flags = { ...DeviceCommand.flags };
+  static flags = { ...DeviceRequestCommand.flags };
   static args = [
     Mode.deviceArg,
     {

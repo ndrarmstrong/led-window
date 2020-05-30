@@ -1,4 +1,4 @@
-import DeviceCommand from '../lib/deviceCommand';
+import DeviceRequestCommand from '../lib/deviceRequestCommand';
 import { Acknowledgement, AcknowledgeResponses } from '../types/ack';
 import MqttClient from '../lib/mqttClient';
 import { SysRequest } from '../types/sys';
@@ -6,9 +6,9 @@ import { SysRequest } from '../types/sys';
 /**
  * Configure system functions of a device
  */
-export default class Sys extends DeviceCommand {
+export default class Sys extends DeviceRequestCommand {
   static description = 'Configure system functions of a device';
-  static flags = { ...DeviceCommand.flags };
+  static flags = { ...DeviceRequestCommand.flags };
   static args = [Sys.deviceArg, { name: 'action', description: 'System action', required: true, options: ['ota'] }];
 
   /** Run command */

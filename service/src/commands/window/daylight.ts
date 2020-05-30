@@ -1,4 +1,4 @@
-import DeviceCommand from '../../lib/deviceCommand';
+import DeviceRequestCommand from '../../lib/deviceRequestCommand';
 import DaylightRequest from '../../types/daylight';
 import { Acknowledgement, AcknowledgeResponses } from '../../types/ack';
 import MqttClient from '../../lib/mqttClient';
@@ -6,9 +6,9 @@ import MqttClient from '../../lib/mqttClient';
 /**
  * Configure daylight mode command
  */
-export default class Daylight extends DeviceCommand {
+export default class Daylight extends DeviceRequestCommand {
   static description = 'Configure daylight mode';
-  static flags = { ...DeviceCommand.flags };
+  static flags = { ...DeviceRequestCommand.flags };
   static args = [
     Daylight.deviceArg,
     {

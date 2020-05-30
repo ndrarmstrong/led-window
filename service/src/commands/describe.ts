@@ -1,13 +1,13 @@
 import { DescribeResponse } from '../types/describe';
 import MqttClient from '../lib/mqttClient';
-import DeviceCommand from '../lib/deviceCommand';
+import DeviceRequestCommand from '../lib/deviceRequestCommand';
 
 /**
  * Describe the state of a device
  */
-export default class Describe extends DeviceCommand {
+export default class Describe extends DeviceRequestCommand {
   static description = 'Describe the state of a device';
-  static flags = { ...DeviceCommand.flags };
+  static flags = { ...DeviceRequestCommand.flags };
   static args = [Describe.deviceArg];
 
   /**

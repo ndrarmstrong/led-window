@@ -1,4 +1,4 @@
-import DeviceCommand from '../../lib/deviceCommand';
+import DeviceRequestCommand from '../../lib/deviceRequestCommand';
 import { Acknowledgement, AcknowledgeResponses } from '../../types/ack';
 import MqttClient from '../../lib/mqttClient';
 import RawRequest from '../../types/raw';
@@ -6,9 +6,9 @@ import RawRequest from '../../types/raw';
 /**
  * Configure raw mode command
  */
-export default class Raw extends DeviceCommand {
+export default class Raw extends DeviceRequestCommand {
   static description = 'Configure raw mode';
-  static flags = { ...DeviceCommand.flags };
+  static flags = { ...DeviceRequestCommand.flags };
   static args = [
     Raw.deviceArg,
     {
