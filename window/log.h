@@ -9,8 +9,8 @@
 #include <inttypes.h>
 #include "Print.h"
 #include "stdlib_noniso.h"
-#include "logStream.h"
 #include "mqtt.h"
+#include "mqttLogStream.h"
 
 class Log
 {

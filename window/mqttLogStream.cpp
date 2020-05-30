@@ -1,4 +1,4 @@
-#include "logStream.h"
+#include "mqttLogStream.h"
 
 void MqttLogStream::flush()
 {
