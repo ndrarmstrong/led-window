@@ -83,7 +83,7 @@ ModeRaw modeRaw(&Leds::get());
 void setup()
 {
   Serial.begin(115200);
-  Serial.println("Setup");
+  Log::get().println("Setup");
   System::get().setup();
   Leds::get().setup();
   modeSystem.start();
@@ -95,7 +95,7 @@ void setup()
 void loop()
 {
   System::get().loop();
-  Mqtt::get().loop();
+  Mqtt::get().loop(System::get().isAssociated());
 
   if (currentMode != Modes::SYSTEM && System::get().isAssociated() && System::get().getOtaState() != OtaState::Disabled)
   {
@@ -125,10 +125,10 @@ void switchModes(Modes nextMode)
     return;
   }
 
-  Serial.print("Switching from mode ");
-  Serial.print(currentMode);
-  Serial.print(" to mode ");
-  Serial.println(nextMode);
+  Log::get().print("Switching from mode ");
+  Log::get().print(currentMode);
+  Log::get().print(" to mode ");
+  Log::get().println(nextMode);
 
   switch (currentMode)
   {

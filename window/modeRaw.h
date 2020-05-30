@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "leds.h"
+#include "log.h"
 
 /**
  * @brief Raw mode; render value exactly as specified, without processing

@@ -33,8 +33,8 @@ void System::setup()
 
 void System::setupWiFi()
 {
-    Serial.print("Wi-Fi start: Connecting to ");
-    Serial.println(Config::WIFI_SSID);
+    Log::get().print("Wi-Fi start: Connecting to ");
+    Log::get().println(Config::WIFI_SSID);
 
     wifiAssociatingBlinkPhase = 0;
     wifiAssociatingTicker.attach_ms_scheduled(200, std::bind(&System::blinkWifiAssociating, this));
@@ -59,10 +59,10 @@ void System::checkWiFiAssociated()
     if (WiFi.status() == WL_CONNECTED && !associated)
     {
         // We are now connected to Wi-Fi
-        Serial.print("Wi-Fi connected: ");
-        Serial.print(Config::WIFI_SSID);
-        Serial.print(", IP: ");
-        Serial.println(WiFi.localIP());
+        Log::get().print("Wi-Fi connected: ");
+        Log::get().print(Config::WIFI_SSID);
+        Log::get().print(", IP: ");
+        Log::get().println(WiFi.localIP());
         associated = true;
 
         wifiAssociatingTicker.detach();
@@ -88,12 +88,12 @@ void System::startOTA()
         ArduinoOTA.onStart([this]() {
             otaState = OtaState::InProgress;
             otaProgress = 0;
-            Serial.println("OTA Started");
+            Log::get().println("OTA Started");
         });
 
         ArduinoOTA.onProgress([this](unsigned int progress, unsigned int total) {
             otaProgress = (progress / (total / 100));
-            Serial.printf("OTA Progress: %u%%\r", otaProgress);
+            Log::get().printf("OTA Progress: %u%%\r", otaProgress);
             digitalWrite(Config::PIN_READY_LED, blinkState ? HIGH : LOW);
             blinkState = !blinkState;
         });
@@ -103,38 +103,38 @@ void System::startOTA()
             {
                 otaState = OtaState::Success;
             }
-            Serial.println("OTA Complete");
+            Log::get().println("OTA Complete");
         });
 
         ArduinoOTA.onError([this](ota_error_t error) {
             otaState = OtaState::Error;
-            Serial.printf("Error[%u]: ", error);
+            Log::get().printf("Error[%u]: ", error);
 
             if (error == OTA_AUTH_ERROR)
             {
-                Serial.println("Auth Failed");
+                Log::get().println("Auth Failed");
             }
             else if (error == OTA_BEGIN_ERROR)
             {
-                Serial.println("Begin Failed");
+                Log::get().println("Begin Failed");
             }
             else if (error == OTA_CONNECT_ERROR)
             {
-                Serial.println("Connect Failed");
+                Log::get().println("Connect Failed");
             }
             else if (error == OTA_RECEIVE_ERROR)
             {
-                Serial.println("Receive Failed");
+                Log::get().println("Receive Failed");
             }
             else if (error == OTA_END_ERROR)
             {
-                Serial.println("End Failed");
+                Log::get().println("End Failed");
             }
         });
 
         ArduinoOTA.begin();
 
-        Serial.println("OTA Enabled");
+        Log::get().println("OTA Enabled");
         otaState = OtaState::Enabled;
     }
 }
@@ -167,9 +167,9 @@ void System::updateTemp()
     // then slow down
     temperatureReadTicker.once_ms_scheduled(30000, std::bind(&System::updateTemp, this));
 
-    Serial.print("System: ");
-    Serial.print((int)temperature);
-    Serial.print(F("°C, "));
-    Serial.print((int)humidity);
-    Serial.println("% humidity");
+    Log::get().print("System: ");
+    Log::get().print((int)temperature);
+    Log::get().print(F("°C, "));
+    Log::get().print((int)humidity);
+    Log::get().println("% humidity");
 }

@@ -21,7 +21,7 @@ Mqtt &Mqtt::get()
     return *global;
 }
 
-void Mqtt::loop()
+void Mqtt::loop(bool isAssociated)
 {
     if (mqttClient.connected())
     {
@@ -31,7 +31,7 @@ void Mqtt::loop()
 
     int reconnectDelayMs = (Config::MQTT_BROKER_CONNECT_TIMEOUT_S + 1) * 1000;
 
-    if (System::get().isAssociated() && !connectTicker.active())
+    if (isAssociated && !connectTicker.active())
     {
         // Attach reconnect ticker (and signal we're connecting)
         connectTicker.attach_ms_scheduled(reconnectDelayMs, std::bind(&Mqtt::connect, this));
@@ -43,13 +43,14 @@ void Mqtt::loop()
 
 void Mqtt::connect()
 {
+    // Don't use Log, because we're A) not connected and B) would create a circular dependency
     Serial.print("MQTT: Connect to broker ");
     Serial.print(Config::MQTT_BROKER_ADDRESS);
     Serial.print(":");
     Serial.println(Config::MQTT_BROKER_PORT);
 
     // This is (unfortunately) blocking, but usually happens quickly
-    if (mqttClient.connect(System::get().getDeviceId().c_str(), "device", Config::MQTT_BROKER_SECRET))
+    if (mqttClient.connect(getDeviceId().c_str(), "device", Config::MQTT_BROKER_SECRET))
     {
         Serial.println("MQTT: Connected to broker");
         connectTicker.detach();
@@ -63,7 +64,7 @@ void Mqtt::connect()
 void Mqtt::publish(const char *topic, const char *message)
 {
     String deviceTopic = String("device/");
-    deviceTopic += System::get().getDeviceId();
+    deviceTopic += getDeviceId();
     deviceTopic += "/";
     deviceTopic += topic;
 

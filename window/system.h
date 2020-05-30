@@ -9,6 +9,7 @@
 #include <DHT.h>
 #include <DHT_U.h>
 #include "leds.h"
+#include "log.h"
 
 /**
  * @brief State of OTA updates
@@ -98,12 +99,6 @@ public:
      * @return float Current system humidity
      */
     float getHumidity() { return humidity; }
-
-    /**
-     * @brief Get the device ID as a hex string
-     * @return String The device ID as a hex string
-     */
-    String getDeviceId() { return String(ESP.getChipId(), HEX); }
 
 private:
     /**

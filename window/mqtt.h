@@ -4,7 +4,6 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <Ticker.h>
-#include "system.h"
 #include "config.h"
 
 /**
@@ -21,8 +20,9 @@ public:
 
     /**
      * @brief Run MQTT loop functions
+     * @param isAssociated Whether Wi-Fi is associated (to avoid a circular dependency with system)
      */
-    void loop();
+    void loop(bool isAssociated);
 
     /**
      * @brief Whether we are connected to MQTT broker
@@ -67,6 +67,12 @@ private:
      * @brief Connect/reconnect to MQTT broker
      */
     void connect();
+
+    /**
+     * @brief Get the device ID as a hex string
+     * @return String The device ID as a hex string
+     */
+    String getDeviceId() { return String(ESP.getChipId(), HEX); }
 };
 
 #endif

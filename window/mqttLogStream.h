@@ -8,7 +8,7 @@
 /**
  * @brief Stream implementation that logs to MQTT
  */
-class LogStream : public StreamString
+class MqttLogStream : public StreamString
 {
 public:
     /**

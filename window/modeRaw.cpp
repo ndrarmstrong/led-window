@@ -13,7 +13,7 @@ void ModeRaw::start()
         return;
     }
 
-    Serial.println("Raw mode: start");
+    Log::get().println("Raw mode: start");
     enabled = true;
 }
 
@@ -24,7 +24,7 @@ void ModeRaw::stop()
         return;
     }
 
-    Serial.println("Raw mode: stop");
+    Log::get().println("Raw mode: stop");
     reset();
     enabled = false;
 }
@@ -44,15 +44,15 @@ void ModeRaw::configure(char *topic, char *payload)
 
 void ModeRaw::configure(uint8_t r, uint8_t g, uint8_t b, int dw)
 {
-    Serial.print("Raw mode: configure color (");
-    Serial.print(r);
-    Serial.print(",");
-    Serial.print(g);
-    Serial.print(",");
-    Serial.print(b);
-    Serial.print(",");
-    Serial.print(dw);
-    Serial.println(")");
+    Log::get().print("Raw mode: configure color (");
+    Log::get().print(r);
+    Log::get().print(",");
+    Log::get().print(g);
+    Log::get().print(",");
+    Log::get().print(b);
+    Log::get().print(",");
+    Log::get().print(dw);
+    Log::get().println(")");
 
     this->r = r;
     this->g = g;
