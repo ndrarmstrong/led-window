@@ -87,6 +87,7 @@ void setup()
   System::get().setup();
   Leds::get().setup();
   modeSystem.start();
+  Mqtt::get().setCallback(dispatchMessage);
 }
 
 /**
@@ -161,6 +162,39 @@ void switchModes(Modes nextMode)
   }
 
   currentMode = nextMode;
+}
+
+/**
+ * @brief Dispatch incoming MQTT messages
+ * 
+ * @param topic Message topic
+ * @param payload Message payload
+ * @param length Message payload length
+ */
+void dispatchMessage(char *topic, byte *payload, unsigned int length)
+{
+  // Sending anything (including log messages now!) will overwrite;
+  // make a copy before proceeding
+  String topicStr = String(topic);
+  byte *payloadCopy = (byte *)malloc(length);
+  memcpy(payloadCopy, payload, length);
+
+  Log::get().print("Recieved message on topic ");
+  Log::get().println(topicStr);
+
+  if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_MODE) == topicStr)
+  {
+    // TODO parse, and send proper response
+    switchModes(currentMode == Modes::OFF ? Modes::SELF_TEST : Modes::OFF);
+    Mqtt::get().publish(Config::MQTT_MSG_TOPIC_MODE, "{\"result\":0}");
+  }
+  else
+  {
+    Log::get().print("Unknown topic");
+    Log::get().println(topic);
+  }
+
+  free(payloadCopy);
 }
 
 // TODO - VERY rough color temperature conversions. Varying intensities.

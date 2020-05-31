@@ -54,6 +54,7 @@ void Mqtt::connect()
     {
         Serial.println("MQTT: Connected to broker");
         connectTicker.detach();
+        subscribe();
     }
     else
     {
@@ -63,13 +64,39 @@ void Mqtt::connect()
 
 void Mqtt::publish(const char *topic, const char *message)
 {
-    String deviceTopic = String("device/");
-    deviceTopic += getDeviceId();
-    deviceTopic += "/";
-    deviceTopic += topic;
-
     if (mqttClient.connected())
     {
-        mqttClient.publish(deviceTopic.c_str(), message);
+        mqttClient.publish(deviceTopic(topic).c_str(), message);
     }
+}
+
+void Mqtt::setCallback(MQTT_CALLBACK_SIGNATURE)
+{
+    mqttClient.setCallback(callback);
+}
+
+String Mqtt::deviceTopic(String topic)
+{
+    String devTopic = String(Config::MQTT_TOPIC_NAMESPACE);
+    devTopic += "/device/";
+    devTopic += getDeviceId();
+    devTopic += "/";
+    devTopic += topic;
+    return devTopic;
+}
+
+String Mqtt::deviceReqTopic(String topic)
+{
+    String devTopic = deviceTopic(topic);
+    devTopic += Config::MQTT_TOPIC_REQ_SUFFIX;
+    return devTopic;
+}
+
+void Mqtt::subscribe()
+{
+    mqttClient.subscribe(deviceReqTopic(Config::MQTT_MSG_TOPIC_DESCRIBE).c_str());
+    mqttClient.subscribe(deviceReqTopic(Config::MQTT_MSG_TOPIC_SYS).c_str());
+    mqttClient.subscribe(deviceReqTopic(Config::MQTT_MSG_TOPIC_DAYLIGHT).c_str());
+    mqttClient.subscribe(deviceReqTopic(Config::MQTT_MSG_TOPIC_RAW).c_str());
+    mqttClient.subscribe(deviceReqTopic(Config::MQTT_MSG_TOPIC_MODE).c_str());
 }

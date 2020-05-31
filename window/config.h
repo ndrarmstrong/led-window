@@ -89,6 +89,41 @@ public:
      */
     static const int MQTT_KEEPALIVE_S = 60;
 
+    /**
+     * @brief Topic namespace for all MQTT messages
+     */
+    static constexpr const char *const MQTT_TOPIC_NAMESPACE = "ledwin";
+
+    /**
+     * @brief Topic suffix for all MQTT requests
+     */
+    static constexpr const char *const MQTT_TOPIC_REQ_SUFFIX = "/req";
+
+    /**
+     * @brief MQTT describe message topic
+     */
+    static constexpr const char *const MQTT_MSG_TOPIC_DESCRIBE = "describe";
+
+    /**
+     * @brief MQTT sys message topic
+     */
+    static constexpr const char *const MQTT_MSG_TOPIC_SYS = "sys";
+
+    /**
+     * @brief MQTT daylight message topic
+     */
+    static constexpr const char *const MQTT_MSG_TOPIC_DAYLIGHT = "daylight";
+
+    /**
+     * @brief MQTT mode message topic
+     */
+    static constexpr const char *const MQTT_MSG_TOPIC_MODE = "mode";
+
+    /**
+     * @brief MQTT raw message topic
+     */
+    static constexpr const char *const MQTT_MSG_TOPIC_RAW = "raw";
+
     //
     // Leds configuration
     //

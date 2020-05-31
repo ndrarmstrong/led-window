@@ -19,6 +19,12 @@ public:
     static Mqtt &get();
 
     /**
+     * @brief Set the callback function for received messages
+     * @param callback Callback function for received messages
+     */
+    void setCallback(MQTT_CALLBACK_SIGNATURE);
+
+    /**
      * @brief Run MQTT loop functions
      * @param isAssociated Whether Wi-Fi is associated (to avoid a circular dependency with system)
      */
@@ -36,6 +42,38 @@ public:
      * @param message Message to publish
      */
     void publish(const char *topic, const char *message);
+
+    /**
+     * @brief Get the full device topic from the function topic
+     * 
+     * @param topic Function topic
+     * @return Full device topic
+     */
+    String deviceTopic(const char *topic) { return deviceTopic(String(topic)); }
+
+    /**
+     * @brief Get the full device topic from the function topic
+     * 
+     * @param topic Function topic
+     * @return Full device topic
+     */
+    String deviceTopic(String topic);
+
+    /**
+     * @brief Get the full device request topic from the function topic
+     * 
+     * @param topic Function topic
+     * @return Full device request topic
+     */
+    String deviceReqTopic(const char *topic) { return deviceReqTopic(String(topic)); }
+
+    /**
+     * @brief Get the full device request topic from the function topic
+     * 
+     * @param topic Function topic
+     * @return Full device request topic
+     */
+    String deviceReqTopic(String topic);
 
 private:
     /**
@@ -73,6 +111,11 @@ private:
      * @return String The device ID as a hex string
      */
     String getDeviceId() { return String(ESP.getChipId(), HEX); }
+
+    /**
+     * @brief Set up subscriptions for all modules.
+     */
+    void subscribe();
 };
 
 #endif
