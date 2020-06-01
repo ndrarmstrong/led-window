@@ -15,7 +15,7 @@ export default class Mode extends DeviceRequestCommand {
       name: 'mode',
       description: 'Window mode',
       required: true,
-      options: ['system', 'self-test', 'raw', 'daylight', 'stained-glass'],
+      options: ['system', 'self-test', 'raw', 'daylight', 'stained-glass', 'off'],
     },
   ];
 
@@ -45,6 +45,9 @@ export default class Mode extends DeviceRequestCommand {
         break;
       case 'stained-glass':
         body.mode = WindowModes.StainedGlass;
+        break;
+      case 'off':
+        body.mode = WindowModes.Off;
         break;
     }
 

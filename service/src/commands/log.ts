@@ -60,7 +60,7 @@ export default class Log extends DeviceCommand {
   async run(): Promise<void> {
     const { args, flags } = this.parse(Log);
 
-    const topic = `device/${args.device}/log`;
+    const topic = `${MqttClient.topicNamespace}/device/${args.device}/log`;
 
     try {
       const client = await MqttClient.connectToBroker(flags.address, flags.port, await this.getAccessKey());

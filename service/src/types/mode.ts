@@ -3,34 +3,39 @@
  */
 export enum WindowModes {
   /**
+   * Off mode
+   */
+  Off = 0,
+
+  /**
    * Startup mode
    */
-  Startup = 0,
+  Startup = 1,
 
   /**
    * System mode - displays system status
    */
-  System = 1,
+  System = 2,
 
   /**
    * Self test mode - shows LED strip channels
    */
-  SelfTest = 2,
+  SelfTest = 3,
 
   /**
    * Raw mode - renders color exactly as given
    */
-  Raw = 3,
+  Raw = 4,
 
   /**
    * Daylight mode - renders outside color
    */
-  Daylight = 4,
+  Daylight = 5,
 
   /**
    * Stained glass mode - emulate a stained glass window
    */
-  StainedGlass = 5,
+  StainedGlass = 6,
 }
 
 /**
