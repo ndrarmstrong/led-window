@@ -1,9 +1,11 @@
 #ifndef MQTT_H
 #define MQTT_H
 
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <Ticker.h>
+#include <ArduinoJson.h>
 #include "config.h"
 
 /**
@@ -42,6 +44,23 @@ public:
      * @param message Message to publish
      */
     void publish(const char *topic, const char *message);
+
+    /**
+     * @brief Publish a message to a topic
+     * 
+     * @param topic Topic to publish to, not including device prefix
+     * @param message Message to publish
+     * @param length Length of message
+     */
+    void publish(const char *topic, const char *payload, unsigned int plength);
+
+    /**
+     * @brief Publish an acknowledgement response to a topic.
+     * 
+     * @param topic Topic to publish to.
+     * @param success Whether the request was successful
+     */
+    void acknowledge(const char *topic, bool success);
 
     /**
      * @brief Get the full device topic from the function topic

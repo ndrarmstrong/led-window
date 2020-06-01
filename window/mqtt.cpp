@@ -70,6 +70,27 @@ void Mqtt::publish(const char *topic, const char *message)
     }
 }
 
+void Mqtt::publish(const char *topic, const char *payload, unsigned int plength)
+{
+    if (mqttClient.connected())
+    {
+        mqttClient.publish(deviceTopic(topic).c_str(), payload, plength);
+    }
+}
+
+void Mqtt::acknowledge(const char *topic, bool success)
+{
+    StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
+    char resBuf[Config::MQTT_MESSAGE_SIZE_B];
+    resDoc["result"] = success ? 0 : 1;
+    size_t resLen = serializeJson(resDoc, resBuf);
+
+    publish(topic, resBuf, resLen);
+
+    Serial.print("Acknowledged ");
+    Serial.println(topic);
+}
+
 void Mqtt::setCallback(MQTT_CALLBACK_SIGNATURE)
 {
     mqttClient.setCallback(callback);

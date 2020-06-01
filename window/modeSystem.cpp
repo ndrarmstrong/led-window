@@ -19,6 +19,8 @@ void ModeSystem::start()
         return;
     }
 
+    this->leds->reset();
+
     frameCounter = 0;
     enabled = true;
     ticker.attach_ms(1000 / FRAMES_PER_SECOND, std::bind(&ModeSystem::animateState, this));

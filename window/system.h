@@ -8,6 +8,7 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
+#include <ArduinoJson.h>
 #include "leds.h"
 #include "log.h"
 
@@ -99,6 +100,20 @@ public:
      * @return float Current system humidity
      */
     float getHumidity() { return humidity; }
+
+    /**
+     * @brief Handle incoming sys messages to set system state
+     * @param payload Message payload
+     * @param length Message length
+     */
+    void onSysMessage(byte *payload, unsigned int length);
+
+    /**
+     * @brief Handle incoming describe messages requesting system info
+     * @param payload Message payload
+     * @param length Message length
+     */
+    void onDescribeMessage(byte *payload, unsigned int length);
 
 private:
     /**

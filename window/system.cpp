@@ -93,7 +93,9 @@ void System::startOTA()
 
         ArduinoOTA.onProgress([this](unsigned int progress, unsigned int total) {
             otaProgress = (progress / (total / 100));
-            Log::get().printf("OTA Progress: %u%%\r", otaProgress);
+            Log::get().print("OTA Progress: ");
+            Log::get().print(otaProgress);
+            Log::get().println("%");
             digitalWrite(Config::PIN_READY_LED, blinkState ? HIGH : LOW);
             blinkState = !blinkState;
         });
@@ -172,4 +174,49 @@ void System::updateTemp()
     Log::get().print(F("°C, "));
     Log::get().print((int)humidity);
     Log::get().println("% humidity");
+}
+
+void System::onSysMessage(byte *payload, unsigned int length)
+{
+    StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> reqDoc;
+    bool success = false;
+
+    DeserializationError err = deserializeJson(reqDoc, payload, length);
+
+    if (err == DeserializationError::Ok)
+    {
+        if (reqDoc.containsKey("otaEnabled") && (boolean)reqDoc["otaEnabled"] == true)
+        {
+            startOTA();
+        }
+        success = true;
+    }
+    else
+    {
+        Log::get().print("Unable to parse sys message: ");
+        Log::get().println(err.c_str());
+    }
+
+    Mqtt::get().acknowledge(Config::MQTT_MSG_TOPIC_SYS, success);
+}
+
+void System::onDescribeMessage(byte *payload, unsigned int length)
+{
+    // Describe requests have no body
+    StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
+    char resBuf[Config::MQTT_MESSAGE_SIZE_B];
+
+    resDoc["device"] = String(ESP.getChipId(), HEX);
+    resDoc["freeHeapB"] = ESP.getFreeHeap();
+    resDoc["sketchSizeB"] = ESP.getSketchSize();
+    resDoc["freeSketchSpaceB"] = ESP.getFreeSketchSpace();
+    resDoc["otaEnabled"] = otaState != OtaState::Disabled;
+    resDoc["temperatureC"] = temperature;
+    resDoc["relativeHumidityPct"] = humidity;
+
+    size_t resLen = serializeJson(resDoc, resBuf);
+    Mqtt::get().publish(Config::MQTT_MSG_TOPIC_DESCRIBE, resBuf, resLen);
+
+    Log::get().print("Responded to ");
+    Log::get().println(Config::MQTT_MSG_TOPIC_DESCRIBE);
 }

@@ -2,6 +2,7 @@
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include "config.h"
 #include "system.h"
 #include "mqtt.h"
@@ -184,9 +185,15 @@ void dispatchMessage(char *topic, byte *payload, unsigned int length)
 
   if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_MODE) == topicStr)
   {
-    // TODO parse, and send proper response
-    switchModes(currentMode == Modes::OFF ? Modes::SELF_TEST : Modes::OFF);
-    Mqtt::get().publish(Config::MQTT_MSG_TOPIC_MODE, "{\"result\":0}");
+    onModeMessage(payloadCopy, length);
+  }
+  else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_SYS) == topicStr)
+  {
+    System::get().onSysMessage(payloadCopy, length);
+  }
+  else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_DESCRIBE) == topicStr)
+  {
+    System::get().onDescribeMessage(payloadCopy, length);
   }
   else
   {
@@ -195,6 +202,32 @@ void dispatchMessage(char *topic, byte *payload, unsigned int length)
   }
 
   free(payloadCopy);
+}
+
+/**
+ * @brief Change window mode based on mode message, and respond
+ * @param payload Message payload
+ * @param length Message payload length
+ */
+void onModeMessage(byte *payload, unsigned int length)
+{
+  StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> reqDoc;
+  bool success = false;
+
+  DeserializationError err = deserializeJson(reqDoc, payload, length);
+
+  if (err == DeserializationError::Ok)
+  {
+    switchModes((Modes)reqDoc["mode"]);
+    success = true;
+  }
+  else
+  {
+    Log::get().print("Unable to parse mode message: ");
+    Log::get().println(err.c_str());
+  }
+
+  Mqtt::get().acknowledge(Config::MQTT_MSG_TOPIC_MODE, success);
 }
 
 // TODO - VERY rough color temperature conversions. Varying intensities.
