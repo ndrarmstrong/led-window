@@ -5,6 +5,7 @@
 #include "leds.h"
 #include "log.h"
 #include "mode.h"
+#include "panelColor.h"
 
 /**
  * @brief Raw mode; render value exactly as specified, without processing
@@ -38,24 +39,9 @@ protected:
 
 private:
     /**
-     * @brief Active red value
+     * @brief Active color
      */
-    uint8_t r;
-
-    /**
-     * @brief Active green value
-     */
-    uint8_t g;
-
-    /**
-     * @brief Active blue value
-     */
-    uint8_t b;
-
-    /**
-     * @brief Active daylight white value
-     */
-    uint8_t dw;
+    PanelColor color;
 
     /**
      * @brief Reset values to default

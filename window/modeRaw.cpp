@@ -2,10 +2,7 @@
 
 void ModeRaw::reset()
 {
-    r = 0;
-    g = 0;
-    b = 0;
-    dw = 0;
+    color = {};
 }
 
 void ModeRaw::onConfigMessage(byte *payload, unsigned int length)
@@ -41,10 +38,11 @@ void ModeRaw::configure(uint8_t r, uint8_t g, uint8_t b, int dw)
     Log::get().print(dw);
     Log::get().println(")");
 
-    this->r = r;
-    this->g = g;
-    this->b = b;
-    this->dw = dw;
+    color.r = r;
+    color.g = g;
+    color.b = b;
+    color.dw = dw;
+
     render();
 }
 
@@ -55,5 +53,5 @@ void ModeRaw::render()
         return;
     }
 
-    Leds::get().showColor(r, g, b, dw);
+    Leds::get().showColor(color.r, color.g, color.b, color.dw);
 }
