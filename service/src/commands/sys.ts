@@ -9,16 +9,23 @@ import { SysRequest } from '../types/sys';
 export default class Sys extends DeviceRequestCommand {
   static description = 'Configure system functions of a device';
   static flags = { ...DeviceRequestCommand.flags };
-  static args = [Sys.deviceArg, { name: 'action', description: 'System action', required: true, options: ['ota'] }];
+  static args = [Sys.deviceArg, { name: 'action', description: 'System action', required: true, options: ['ota', 'reset'] }];
 
   /** Run command */
   async run(): Promise<void> {
     const { args, flags } = this.parse(Sys);
 
     let res: Acknowledgement;
-    const body: SysRequest = {
-      otaEnabled: true,
-    };
+    const body: SysRequest = {};
+
+    switch (args.action) {
+      case 'ota':
+        body.otaEnabled = true;
+        break;
+      case 'reset':
+        body.reset = true;
+        break;
+    }
 
     try {
       if (flags.method == 'mqtt') {
@@ -40,7 +47,13 @@ export default class Sys extends DeviceRequestCommand {
 
     this.log('---');
     if (res.result === AcknowledgeResponses.Success) {
-      this.log('OTA Enabled');
+      if (body.otaEnabled) {
+        this.log('OTA Enabled');
+      } else if (body.reset) {
+        this.log('System reset');
+      } else {
+        this.log('Request complete');
+      }
     } else {
       this.error(`Failed to enable OTA: ${res.result}`);
     }

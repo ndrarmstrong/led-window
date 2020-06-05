@@ -3,4 +3,5 @@
  */
 export interface SysRequest {
   otaEnabled?: boolean;
+  reset?: boolean;
 }
