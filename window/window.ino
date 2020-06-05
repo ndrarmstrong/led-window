@@ -84,7 +84,7 @@ ModeRaw modeRaw(&Leds::get());
 void setup()
 {
   Serial.begin(115200);
-  Log::get().println("Setup");
+  Log::get().println("Window: Setup");
   System::get().setup();
   Leds::get().setup();
   modeSystem.start();
@@ -127,7 +127,7 @@ void switchModes(Modes nextMode)
     return;
   }
 
-  Log::get().print("Switching from mode ");
+  Log::get().print("Window: Switching from mode ");
   Log::get().print(currentMode);
   Log::get().print(" to mode ");
   Log::get().println(nextMode);
@@ -180,7 +180,7 @@ void dispatchMessage(char *topic, byte *payload, unsigned int length)
   byte *payloadCopy = (byte *)malloc(length);
   memcpy(payloadCopy, payload, length);
 
-  Log::get().print("Recieved message on topic ");
+  Log::get().print("Window: Recieved message on topic ");
   Log::get().println(topicStr);
 
   if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_MODE) == topicStr)
@@ -197,7 +197,7 @@ void dispatchMessage(char *topic, byte *payload, unsigned int length)
   }
   else
   {
-    Log::get().print("Unknown topic");
+    Log::get().print("Window: Unknown topic");
     Log::get().println(topic);
   }
 
@@ -223,7 +223,7 @@ void onModeMessage(byte *payload, unsigned int length)
   }
   else
   {
-    Log::get().print("Unable to parse mode message: ");
+    Log::get().print("Window: Unable to parse mode message: ");
     Log::get().println(err.c_str());
   }
 

@@ -87,7 +87,7 @@ void Mqtt::acknowledge(const char *topic, bool success)
 
     publish(topic, resBuf, resLen);
 
-    Serial.print("Acknowledged ");
+    Serial.print("MQTT: Acknowledged ");
     Serial.println(topic);
 }
 

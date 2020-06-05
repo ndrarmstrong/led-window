@@ -200,7 +200,7 @@ void ModeSystem::showTemp()
     }
 
     int lowTemp = 15;
-    int tempStep = 3;
+    int tempStep = 4;
     uint8_t currentBrightness = 70;
 
     if (isnan(system->getTemperature()) || system->getTemperature() <= 0)

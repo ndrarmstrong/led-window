@@ -33,7 +33,7 @@ void System::setup()
 
 void System::setupWiFi()
 {
-    Log::get().print("Wi-Fi start: Connecting to ");
+    Log::get().print("System: Wi-Fi start; connecting to ");
     Log::get().println(Config::WIFI_SSID);
 
     wifiAssociatingBlinkPhase = 0;
@@ -46,6 +46,7 @@ void System::setupWiFi()
 
 void System::loop()
 {
+    updateWatchdog();
     checkWiFiAssociated();
 
     if (otaState != OtaState::Disabled)
@@ -54,12 +55,35 @@ void System::loop()
     }
 }
 
+void System::updateWatchdog()
+{
+    if (!associated || !Mqtt::get().isConnected())
+    {
+        if (!watchdogTicker.active())
+        {
+            Log::get().println("System: Not connected to Wi-Fi/MQTT; starting watchdog");
+            watchdogTicker.once_ms(Config::SYSTEM_WATCHDOG_INTERVAL_MS, std::bind(&System::resetSystem, this));
+        }
+    }
+    else if (watchdogTicker.active())
+    {
+        Log::get().println("System: Connected to Wi-Fi/MQTT; stopping watchdog");
+        watchdogTicker.detach();
+    }
+}
+
+void System::resetSystem()
+{
+    Log::get().println("System: Resetting due to watchdog or MQTT command.");
+    ESP.reset();
+}
+
 void System::checkWiFiAssociated()
 {
     if (WiFi.status() == WL_CONNECTED && !associated)
     {
         // We are now connected to Wi-Fi
-        Log::get().print("Wi-Fi connected: ");
+        Log::get().print("System: Wi-Fi connected: ");
         Log::get().print(Config::WIFI_SSID);
         Log::get().print(", IP: ");
         Log::get().println(WiFi.localIP());
@@ -67,9 +91,6 @@ void System::checkWiFiAssociated()
 
         wifiAssociatingTicker.detach();
         digitalWrite(Config::PIN_READY_LED, HIGH);
-
-        // Temporarily enable OTA
-        // startOTA();
     }
     else if (WiFi.status() != WL_CONNECTED)
     {
@@ -88,12 +109,12 @@ void System::startOTA()
         ArduinoOTA.onStart([this]() {
             otaState = OtaState::InProgress;
             otaProgress = 0;
-            Log::get().println("OTA Started");
+            Log::get().println("System: OTA Started");
         });
 
         ArduinoOTA.onProgress([this](unsigned int progress, unsigned int total) {
             otaProgress = (progress / (total / 100));
-            Log::get().print("OTA Progress: ");
+            Log::get().print("System: OTA Progress: ");
             Log::get().print(otaProgress);
             Log::get().println("%");
             digitalWrite(Config::PIN_READY_LED, blinkState ? HIGH : LOW);
@@ -105,38 +126,37 @@ void System::startOTA()
             {
                 otaState = OtaState::Success;
             }
-            Log::get().println("OTA Complete");
+            Log::get().println("System: OTA Complete");
         });
 
         ArduinoOTA.onError([this](ota_error_t error) {
             otaState = OtaState::Error;
-            Log::get().printf("Error[%u]: ", error);
 
             if (error == OTA_AUTH_ERROR)
             {
-                Log::get().println("Auth Failed");
+                Log::get().println("System: OTA Auth Failed");
             }
             else if (error == OTA_BEGIN_ERROR)
             {
-                Log::get().println("Begin Failed");
+                Log::get().println("System: OTA Begin Failed");
             }
             else if (error == OTA_CONNECT_ERROR)
             {
-                Log::get().println("Connect Failed");
+                Log::get().println("System: OTA Connect Failed");
             }
             else if (error == OTA_RECEIVE_ERROR)
             {
-                Log::get().println("Receive Failed");
+                Log::get().println("System: OTA Receive Failed");
             }
             else if (error == OTA_END_ERROR)
             {
-                Log::get().println("End Failed");
+                Log::get().println("System: OTA End Failed");
             }
         });
 
         ArduinoOTA.begin();
 
-        Log::get().println("OTA Enabled");
+        Log::get().println("System: OTA Enabled");
         otaState = OtaState::Enabled;
     }
 }
@@ -169,7 +189,19 @@ void System::updateTemp()
     // then slow down
     temperatureReadTicker.once_ms_scheduled(30000, std::bind(&System::updateTemp, this));
 
-    Log::get().print("System: ");
+    // Periodic state broadcast as part of temperature polling loop
+    if (Mqtt::get().isConnected())
+    {
+        Log::get().print("System: Periodic status publish to ");
+        Log::get().print(Config::MQTT_MSG_TOPIC_DESCRIBE);
+        Log::get().print("; ");
+        publishDescribe();
+    }
+    else
+    {
+        Log::get().print("System: ");
+    }
+
     Log::get().print((int)temperature);
     Log::get().print(F("°C, "));
     Log::get().print((int)humidity);
@@ -189,11 +221,18 @@ void System::onSysMessage(byte *payload, unsigned int length)
         {
             startOTA();
         }
+
+        if (reqDoc.containsKey("reset") && (boolean)reqDoc["reset"] == true)
+        {
+            // Reset after short delay
+            resetTicker.once_ms(100, std::bind(&System::resetSystem, this));
+        }
+
         success = true;
     }
     else
     {
-        Log::get().print("Unable to parse sys message: ");
+        Log::get().print("System: Unable to parse sys message: ");
         Log::get().println(err.c_str());
     }
 
@@ -203,6 +242,14 @@ void System::onSysMessage(byte *payload, unsigned int length)
 void System::onDescribeMessage(byte *payload, unsigned int length)
 {
     // Describe requests have no body
+    publishDescribe();
+
+    Log::get().print("System: Responded to ");
+    Log::get().println(Config::MQTT_MSG_TOPIC_DESCRIBE);
+}
+
+void System::publishDescribe()
+{
     StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
     char resBuf[Config::MQTT_MESSAGE_SIZE_B];
 
@@ -216,7 +263,4 @@ void System::onDescribeMessage(byte *payload, unsigned int length)
 
     size_t resLen = serializeJson(resDoc, resBuf);
     Mqtt::get().publish(Config::MQTT_MSG_TOPIC_DESCRIBE, resBuf, resLen);
-
-    Log::get().print("Responded to ");
-    Log::get().println(Config::MQTT_MSG_TOPIC_DESCRIBE);
 }

@@ -38,6 +38,11 @@ public:
      */
     static constexpr const char *const SYSTEM_OTA_PASSWORD = ENV_OTA_PASSWORD;
 
+    /**
+     * @brief Watchdog interval; if the system stays disconnected for this long, reset.
+     */
+    static const int SYSTEM_WATCHDOG_INTERVAL_MS = 5 * 60 * 1000;
+
     //
     // Wi-Fi Configuration
     //

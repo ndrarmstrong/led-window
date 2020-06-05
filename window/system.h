@@ -9,7 +9,6 @@
 #include <DHT.h>
 #include <DHT_U.h>
 #include <ArduinoJson.h>
-#include "leds.h"
 #include "log.h"
 
 /**
@@ -159,6 +158,16 @@ private:
     Ticker wifiAssociatingTicker;
 
     /**
+     * @brief Watchdog ticker; resets the unit if it is unconnected from Wi-Fi or MQTT for too long.
+     */
+    Ticker watchdogTicker;
+
+    /**
+     * @brief Reset ticker; used to delay to allow MQTT responses to go out.
+     */
+    Ticker resetTicker;
+
+    /**
      * @brief Counter for Wi-Fi associating blink code
      */
     int wifiAssociatingBlinkPhase = 0;
@@ -185,6 +194,16 @@ private:
     void setupWiFi();
 
     /**
+     * @brief Update watchdog state.
+     */
+    void updateWatchdog();
+
+    /**
+     * @brief Reset the system.
+     */
+    void resetSystem();
+
+    /**
      * @brief Check to see if Wi-Fi is now associated
      * 
      */
@@ -199,6 +218,11 @@ private:
      * @brief Update the current system temperature.
      */
     void updateTemp();
+
+    /**
+     * @brief Publish a describe message.  This can be in response to a request, or as periodic status broadcast.
+     */
+    void publishDescribe();
 };
 
 #endif
