@@ -6,57 +6,38 @@
 #include "system.h"
 #include "mqtt.h"
 #include "leds.h"
+#include "mode.h"
 
 /**
  * @brief System mode; used to display status via LEDs
  * 
  */
-class ModeSystem
+class ModeSystem : public Mode
 {
 public:
     /**
-     * @brief Construct a new Mode System object
-     * 
-     * @param system System instance
-     * @param leds Leds instance
+     * @brief System mode cannot be configured
+     * @param payload Message payload
+     * @param length Message length
      */
-    ModeSystem(System *system, Mqtt *mqtt, Leds *leds);
+    void onConfigMessage(byte *payload, unsigned int length) override{};
+
+protected:
+    /**
+     * @brief Runs on mode start.
+     */
+    void onStart() override;
 
     /**
-     * @brief Start running system mode.
+     * @brief Runs on mode stop.
      */
-    void start();
-
-    /**
-     * @brief Stop running system mode.
-     */
-    void stop();
+    void onStop() override;
 
 private:
     /**
      * @brief How many frames per second the spinners render at.
      */
     static const int FRAMES_PER_SECOND = 24;
-
-    /**
-     * @brief Whether this module is enabled.
-     */
-    bool enabled = false;
-
-    /**
-     * @brief System instance.
-     */
-    System *system;
-
-    /**
-     * @brief Mqtt instance.
-     */
-    Mqtt *mqtt;
-
-    /**
-     * @brief Leds instance.
-     */
-    Leds *leds;
 
     /**
      * @brief Frame counter, for timing animations.

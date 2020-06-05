@@ -1,39 +1,13 @@
 #include "modeSystem.h"
 
-// TODO:
-// Wi-Fi state
-// MQTT state
-// System temperature [G - - - W - - - - - - R]
-
-ModeSystem::ModeSystem(System *system, Mqtt *mqtt, Leds *leds)
+void ModeSystem::onStart()
 {
-    this->system = system;
-    this->mqtt = mqtt;
-    this->leds = leds;
-}
-
-void ModeSystem::start()
-{
-    if (enabled)
-    {
-        return;
-    }
-
-    this->leds->reset();
-
     frameCounter = 0;
-    enabled = true;
     ticker.attach_ms(1000 / FRAMES_PER_SECOND, std::bind(&ModeSystem::animateState, this));
 }
 
-void ModeSystem::stop()
+void ModeSystem::onStop()
 {
-    if (!enabled)
-    {
-        return;
-    }
-
-    enabled = false;
     ticker.detach();
 }
 
@@ -49,7 +23,7 @@ void ModeSystem::animateState()
     uint8_t otaHue = 85;
 
     // Wi-Fi spinner
-    if (!system->isAssociated())
+    if (!System::get().isAssociated())
     {
         animateSpinner(wifiStart, wifiHue);
     }
@@ -59,11 +33,11 @@ void ModeSystem::animateState()
     }
 
     // MQTT spinner
-    if (!system->isAssociated())
+    if (!System::get().isAssociated())
     {
         clearSpinner(mqttStart);
     }
-    else if (!mqtt->isConnected())
+    else if (!Mqtt::get().isConnected())
     {
         animateSpinner(mqttStart, mqttHue);
     }
@@ -73,13 +47,13 @@ void ModeSystem::animateState()
     }
 
     // OTA spinner
-    switch (system->getOtaState())
+    switch (System::get().getOtaState())
     {
     case OtaState::Enabled:
         animateSpinner(otaStart, otaHue);
         break;
     case OtaState::InProgress:
-        fillSpinner(otaStart, otaHue, system->getOtaProgress());
+        fillSpinner(otaStart, otaHue, System::get().getOtaProgress());
         break;
     case OtaState::Success:
         stopSpinner(otaStart, otaHue);
@@ -93,7 +67,7 @@ void ModeSystem::animateState()
 
     showTemp();
 
-    leds->show();
+    Leds::get().show();
 }
 
 void ModeSystem::animateSpinner(int start, uint8_t hue)
@@ -130,17 +104,17 @@ void ModeSystem::animateSpinner(int start, uint8_t hue)
 
     if (headPos >= 0 && headPos < 10)
     {
-        leds->topLeds[start + headPos] = CHSV(hue, 255, headLevel);
+        Leds::get().topLeds[start + headPos] = CHSV(hue, 255, headLevel);
     }
 
     if (bodyPos >= 0 && bodyPos < 10)
     {
-        leds->topLeds[start + bodyPos] = CHSV(hue, 255, bodyLevel);
+        Leds::get().topLeds[start + bodyPos] = CHSV(hue, 255, bodyLevel);
     }
 
     if (tailPos >= 0 && tailPos < 10)
     {
-        leds->topLeds[start + tailPos] = CHSV(hue, 255, tailLevel);
+        Leds::get().topLeds[start + tailPos] = CHSV(hue, 255, tailLevel);
     }
 }
 
@@ -162,7 +136,7 @@ void ModeSystem::fillSpinner(int start, uint8_t hue, int percent)
             brightness = partialBrightness;
         }
 
-        leds->topLeds[start + i] = CHSV(hue, 255, brightness);
+        Leds::get().topLeds[start + i] = CHSV(hue, 255, brightness);
     }
 }
 
@@ -170,7 +144,7 @@ void ModeSystem::stopSpinner(int start, uint8_t hue)
 {
     for (int i = 0; i < 10; i++)
     {
-        leds->topLeds[start + i] = CHSV(hue, 255, 128);
+        Leds::get().topLeds[start + i] = CHSV(hue, 255, 128);
     }
 }
 
@@ -178,7 +152,7 @@ void ModeSystem::clearSpinner(int start)
 {
     for (int i = 0; i < 10; i++)
     {
-        leds->topLeds[start + i] = CRGB::Black;
+        Leds::get().topLeds[start + i] = CRGB::Black;
     }
 }
 
@@ -196,19 +170,19 @@ void ModeSystem::showTemp()
         uint8_t hue = flip ? coolHue + hueStep * i : warmHue - hueStep * (9 - i);
         uint8_t brightness = 115 - (flip ? brightStep * i : brightStep * (9 - i));
 
-        leds->bottomLeds[startPixel + i] = CHSV(hue, 255, brightness);
+        Leds::get().bottomLeds[startPixel + i] = CHSV(hue, 255, brightness);
     }
 
     int lowTemp = 15;
     int tempStep = 4;
     uint8_t currentBrightness = 70;
 
-    if (isnan(system->getTemperature()) || system->getTemperature() <= 0)
+    if (isnan(System::get().getTemperature()) || System::get().getTemperature() <= 0)
     {
         return;
     }
 
-    int currentPixel = (int)((system->getTemperature() - lowTemp) / tempStep);
+    int currentPixel = (int)((System::get().getTemperature() - lowTemp) / tempStep);
     currentPixel = std::max(std::min(currentPixel, 9), 0);
-    leds->bottomLeds[startPixel + currentPixel] = CRGB(currentBrightness, currentBrightness, currentBrightness);
+    Leds::get().bottomLeds[startPixel + currentPixel] = CRGB(currentBrightness, currentBrightness, currentBrightness);
 }

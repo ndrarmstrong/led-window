@@ -1,34 +1,5 @@
 #include "modeRaw.h"
 
-ModeRaw::ModeRaw(Leds *leds)
-{
-    this->leds = leds;
-    reset();
-}
-
-void ModeRaw::start()
-{
-    if (enabled)
-    {
-        return;
-    }
-
-    Log::get().println("Raw mode: start");
-    enabled = true;
-}
-
-void ModeRaw::stop()
-{
-    if (!enabled)
-    {
-        return;
-    }
-
-    Log::get().println("Raw mode: stop");
-    reset();
-    enabled = false;
-}
-
 void ModeRaw::reset()
 {
     r = 0;
@@ -37,7 +8,7 @@ void ModeRaw::reset()
     dw = 0;
 }
 
-void ModeRaw::configure(char *topic, char *payload)
+void ModeRaw::onConfigMessage(byte *payload, unsigned int length)
 {
     // TODO
 }
@@ -68,5 +39,5 @@ void ModeRaw::render()
         return;
     }
 
-    leds->showColor(r, g, b, dw);
+    Leds::get().showColor(r, g, b, dw);
 }

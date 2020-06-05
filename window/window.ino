@@ -66,17 +66,17 @@ Modes currentMode = Modes::STARTUP;
 /**
  * @brief System mode instance.
  */
-ModeSystem modeSystem(&System::get(), &Mqtt::get(), &Leds::get());
+ModeSystem modeSystem;
 
 /**
  * @brief Self test mode instance.
  */
-ModeSelfTest modeSelfTest(&Leds::get());
+ModeSelfTest modeSelfTest;
 
 /**
  * @brief Raw mode instance.
  */
-ModeRaw modeRaw(&Leds::get());
+ModeRaw modeRaw;
 
 /**
  * @brief Setup function - runs once on start
@@ -145,6 +145,8 @@ void switchModes(Modes nextMode)
     modeRaw.stop();
     break;
   }
+
+  Leds::get().clear();
 
   switch (nextMode)
   {

@@ -4,41 +4,34 @@
 #include <Arduino.h>
 #include <Ticker.h>
 #include "leds.h"
+#include "mode.h"
 
 /**
  * @brief Self test mode; test each LED strip
  * 
  */
-class ModeSelfTest
+class ModeSelfTest : public Mode
 {
 public:
     /**
-     * @brief Construct a new Mode Self Test object
-     * @param leds Leds instance
+     * @brief Self-test mode cannot be configured
+     * @param payload Message payload
+     * @param length Message length
      */
-    ModeSelfTest(Leds *leds);
+    void onConfigMessage(byte *payload, unsigned int length) override{};
+
+protected:
+    /**
+     * @brief Runs on mode start.
+     */
+    void onStart() override;
 
     /**
-     * @brief Start running self test mode.
+     * @brief Runs on mode stop.
      */
-    void start();
-
-    /**
-     * @brief Stop running self test mode.
-     */
-    void stop();
+    void onStop() override;
 
 private:
-    /**
-     * @brief Whether this module is enabled.
-     */
-    bool enabled = false;
-
-    /**
-     * @brief Leds instance.
-     */
-    Leds *leds;
-
     /**
      * @brief Ticker for alternating channels
      */

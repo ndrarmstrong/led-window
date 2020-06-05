@@ -4,36 +4,17 @@
 #include <Arduino.h>
 #include "leds.h"
 #include "log.h"
+#include "mode.h"
 
 /**
  * @brief Raw mode; render value exactly as specified, without processing
  * 
  */
-class ModeRaw
+class ModeRaw : public Mode
 {
 public:
-    ModeRaw(Leds *leds);
-
     /**
-     * @brief Start running raw mode.
-     */
-    void start();
-
-    /**
-     * @brief Stop running raw mode.
-     */
-    void stop();
-
-    /**
-     * @brief Configure this mode from MQTT message
-     * 
-     * @param topic MQTT topic
-     * @param payload MQTT payload
-     */
-    void configure(char *topic, char *payload);
-
-    /**
-     * @brief Configure this mode from parsed message
+     * @brief Configure this mode
      * 
      * @param r Red level
      * @param g Green level
@@ -42,17 +23,20 @@ public:
      */
     void configure(uint8_t r, uint8_t g, uint8_t b, int dw);
 
+    /**
+     * @brief Handle incoming message to configure mode
+     * @param payload Message payload
+     * @param length Message length
+     */
+    void onConfigMessage(byte *payload, unsigned int length) override;
+
+protected:
+    /**
+     * @brief Reset state when stopped.
+     */
+    void onStop() override { reset(); };
+
 private:
-    /**
-     * @brief Whether this module is enabled.
-     */
-    bool enabled = false;
-
-    /**
-     * @brief Leds instance.
-     */
-    Leds *leds;
-
     /**
      * @brief Active red value
      */
