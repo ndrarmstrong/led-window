@@ -10,7 +10,23 @@ void ModeRaw::reset()
 
 void ModeRaw::onConfigMessage(byte *payload, unsigned int length)
 {
-    // TODO
+    StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> reqDoc;
+    bool success = false;
+
+    DeserializationError err = deserializeJson(reqDoc, payload, length);
+
+    if (err == DeserializationError::Ok && reqDoc.containsKey("r") && reqDoc.containsKey("g") && reqDoc.containsKey("b") && reqDoc.containsKey("dw"))
+    {
+        configure((uint8_t)reqDoc["r"], (uint8_t)reqDoc["g"], (uint8_t)reqDoc["b"], (uint8_t)reqDoc["dw"]);
+        success = true;
+    }
+    else
+    {
+        Log::get().print("System: Unable to parse raw mode message: ");
+        Log::get().println(err.c_str());
+    }
+
+    Mqtt::get().acknowledge(Config::MQTT_MSG_TOPIC_RAW, success);
 }
 
 void ModeRaw::configure(uint8_t r, uint8_t g, uint8_t b, int dw)

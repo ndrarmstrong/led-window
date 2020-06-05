@@ -197,10 +197,14 @@ void dispatchMessage(char *topic, byte *payload, unsigned int length)
   {
     System::get().onDescribeMessage(payloadCopy, length);
   }
+  else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_RAW) == topicStr)
+  {
+    modeRaw.onConfigMessage(payloadCopy, length);
+  }
   else
   {
     Log::get().print("Window: Unknown topic");
-    Log::get().println(topic);
+    Log::get().println(topicStr);
   }
 
   free(payloadCopy);
