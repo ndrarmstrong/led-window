@@ -1,7 +1,7 @@
 #ifndef PANELCOLOR_H
 #define PANELCOLOR_H
 
-#include <stdint.h>
+#include <Arduino.h>
 
 /**
  * @brief Full-panel color

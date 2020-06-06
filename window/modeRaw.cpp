@@ -28,15 +28,9 @@ void ModeRaw::onConfigMessage(byte *payload, unsigned int length)
 
 void ModeRaw::configure(uint8_t r, uint8_t g, uint8_t b, int dw)
 {
-    Log::get().print("Raw mode: configure color (");
-    Log::get().print(r);
-    Log::get().print(",");
-    Log::get().print(g);
-    Log::get().print(",");
-    Log::get().print(b);
-    Log::get().print(",");
-    Log::get().print(dw);
-    Log::get().println(")");
+    Log::get().print("Raw mode: configure color ");
+    Log::get().printColor(r, g, b, dw);
+    Log::get().println("");
 
     color.r = r;
     color.g = g;

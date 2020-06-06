@@ -11,6 +11,7 @@
 #include "modeSystem.h"
 #include "modeSelfTest.h"
 #include "modeRaw.h"
+#include "modeDaylight.h"
 
 /**
  * @brief LED window display modes.
@@ -79,6 +80,11 @@ ModeSelfTest modeSelfTest;
 ModeRaw modeRaw;
 
 /**
+ * @brief Daylight mode instance.
+ */
+ModeDaylight modeDaylight;
+
+/**
  * @brief Setup function - runs once on start
  */
 void setup()
@@ -144,6 +150,9 @@ void switchModes(Modes nextMode)
   case RAW:
     modeRaw.stop();
     break;
+  case DAYLIGHT:
+    modeDaylight.stop();
+    break;
   }
 
   Leds::get().clear();
@@ -159,6 +168,9 @@ void switchModes(Modes nextMode)
     break;
   case RAW:
     modeRaw.start();
+    break;
+  case DAYLIGHT:
+    modeDaylight.start();
     break;
   default:
     Leds::get().reset();
@@ -200,6 +212,10 @@ void dispatchMessage(char *topic, byte *payload, unsigned int length)
   else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_RAW) == topicStr)
   {
     modeRaw.onConfigMessage(payloadCopy, length);
+  }
+  else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_DAYLIGHT) == topicStr)
+  {
+    modeDaylight.onConfigMessage(payloadCopy, length);
   }
   else
   {

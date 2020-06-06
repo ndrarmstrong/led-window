@@ -246,3 +246,21 @@ size_t Log::println(const Printable &x)
     }
     return Serial.println(x);
 }
+
+void Log::printColor(PanelColor color)
+{
+    printColor(color.r, color.g, color.b, color.dw);
+}
+
+void Log::printColor(uint8_t r, uint8_t g, uint8_t b, int dw)
+{
+    print("(");
+    print(r);
+    print(",");
+    print(g);
+    print(",");
+    print(b);
+    print(",");
+    print(dw);
+    print(")");
+}

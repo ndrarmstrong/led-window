@@ -11,6 +11,7 @@
 #include "stdlib_noniso.h"
 #include "mqtt.h"
 #include "mqttLogStream.h"
+#include "panelColor.h"
 
 class Log
 {
@@ -48,6 +49,23 @@ public:
     size_t println(double, int = 2);
     size_t println(const Printable &);
     size_t println(void);
+
+    // Utility functions
+
+    /**
+     * @brief Print color to log
+     * @param color Color to print
+     */
+    void printColor(PanelColor color);
+
+    /**
+     * @brief Print color to log
+     * @param r Red level
+     * @param g Green level
+     * @param b Blue level
+     * @param dw Daylight white level
+     */
+    void printColor(uint8_t r, uint8_t g, uint8_t b, int dw);
 
 private:
     /**
