@@ -12,6 +12,7 @@
 #include "modeSelfTest.h"
 #include "modeRaw.h"
 #include "modeDaylight.h"
+#include "modeStressPwm.h"
 
 /**
  * @brief LED window display modes.
@@ -51,7 +52,12 @@ enum Modes
   /**
    * @brief Stained glass mode - emulate a stained glass window
    */
-  STAINED_GLASS = 6
+  STAINED_GLASS = 6,
+
+  /**
+   * @brief PWM stress mode - for resolving conflicts between analogWrite and FastLED on ESP8266
+   */
+  STRESS_PWM = 7
 };
 
 /**
@@ -83,6 +89,11 @@ ModeRaw modeRaw;
  * @brief Daylight mode instance.
  */
 ModeDaylight modeDaylight;
+
+/**
+ * @brief Stress PWM mode instance.
+ */
+ModeStressPwm modeStressPwm;
 
 /**
  * @brief Setup function - runs once on start
@@ -153,6 +164,9 @@ void switchModes(Modes nextMode)
   case DAYLIGHT:
     modeDaylight.stop();
     break;
+  case STRESS_PWM:
+    modeStressPwm.stop();
+    break;
   }
 
   Leds::get().clear();
@@ -171,6 +185,9 @@ void switchModes(Modes nextMode)
     break;
   case DAYLIGHT:
     modeDaylight.start();
+    break;
+  case STRESS_PWM:
+    modeStressPwm.start();
     break;
   default:
     Leds::get().reset();
