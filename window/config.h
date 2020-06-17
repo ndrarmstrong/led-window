@@ -19,9 +19,15 @@ public:
     static constexpr const char *const HOSTNAME = "led-window";
 
     /**
+     * @brief Whether to remap the white LEDs to the onboard LED 
+     * (useful for PWM testing - low power, easier to see glitches)
+     */
+    static const bool REMAP_WHITE_ONBOARD = false;
+
+    /**
      * @brief Pin for the system LED.
      */
-    static const int PIN_READY_LED = D7;
+    static const int PIN_READY_LED = REMAP_WHITE_ONBOARD ? 16 : D7;
 
     /**
      * @brief Pin for the temperature sensor
@@ -136,7 +142,7 @@ public:
     /**
      * @brief Pin for the white strips MOSFET gate.
      */
-    static const int PIN_WHITE_STRIP = D6;
+    static const int PIN_WHITE_STRIP = REMAP_WHITE_ONBOARD ? D7 : D6;
 
     /**
      * @brief Pin for the top color strip data.

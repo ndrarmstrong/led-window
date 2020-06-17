@@ -51,6 +51,6 @@ void ModeStressPwm::animateState()
         }
     }
 
-    Leds::get().whiteLeds = (phase % 2) == 0 ? 0 : 1;
+    Leds::get().whiteLeds = (phase % 2) == 0 ? 0 : 15;
     Leds::get().show();
 }
