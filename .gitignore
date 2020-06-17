@@ -1,5 +1,9 @@
 build/
-.vscode/c_cpp_properties.json
+window/build/
+sensor/build/
+*/.vscode/c_cpp_properties.json
+*/.vscode/settings.json
 window/env.h
+sensor/env.h
 window/tools/espota.py
-.vscode/settings.json
+sensor/tools/espota.py
