@@ -5,89 +5,89 @@ export default class RawRequest {
   /**
    * Red channel level; 0-255
    */
-  protected _r = 0;
+  protected r = 0;
 
   /**
    * Green channel level; 0-255
    */
-  protected _g = 0;
+  protected g = 0;
 
   /**
    * Blue channel level; 0-255
    */
-  protected _b = 0;
+  protected b = 0;
 
   /**
    * Daylight white channel level; 0-255
    */
-  protected _dw = 0;
+  protected dw = 0;
 
   /**
    * Get red level.
    */
-  get r(): number {
-    return this._r;
+  get red(): number {
+    return this.r;
   }
 
   /**
    * Set red level.
    */
-  set r(level: number) {
+  set red(level: number) {
     if (!(level >= 0 && level <= 255)) {
       throw new Error(`Red level '${level}' out of range; must be 0-255`);
     }
-    this._r = level;
+    this.r = level;
   }
 
   /**
    * Get green level.
    */
-  get g(): number {
-    return this._g;
+  get green(): number {
+    return this.g;
   }
 
   /**
    * Set green level.
    */
-  set g(level: number) {
+  set green(level: number) {
     if (!(level >= 0 && level <= 255)) {
       throw new Error(`Green level '${level}' out of range; must be 0-255`);
     }
-    this._g = level;
+    this.g = level;
   }
 
   /**
    * Get blue level.
    */
-  get b(): number {
-    return this._b;
+  get blue(): number {
+    return this.b;
   }
 
   /**
    * Set blue level.
    */
-  set b(level: number) {
+  set blue(level: number) {
     if (!(level >= 0 && level <= 255)) {
       throw new Error(`Blue level '${level}' out of range; must be 0-255`);
     }
-    this._b = level;
+    this.b = level;
   }
 
   /**
    * Get daylight white level.
    */
-  get dw(): number {
-    return this._dw;
+  get daylightWhite(): number {
+    return this.dw;
   }
 
   /**
    * Set daylight white level.
    */
-  set dw(level: number) {
+  set daylightWhite(level: number) {
     if (!(level >= 0 && level <= 255)) {
       throw new Error(`Daylight white level '${level}' out of range; must be 0-255`);
     }
-    this._dw = level;
+    this.dw = level;
   }
 
   /**
@@ -99,10 +99,10 @@ export default class RawRequest {
    */
   static fromValues(r: number, g: number, b: number, dw: number): RawRequest {
     const req = new RawRequest();
-    req.r = r;
-    req.g = g;
-    req.b = b;
-    req.dw = dw;
+    req.red = r;
+    req.green = g;
+    req.blue = b;
+    req.daylightWhite = dw;
     return req;
   }
 }

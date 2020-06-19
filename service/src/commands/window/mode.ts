@@ -15,7 +15,7 @@ export default class Mode extends DeviceRequestCommand {
       name: 'mode',
       description: 'Window mode',
       required: true,
-      options: ['system', 'self-test', 'raw', 'daylight', 'stained-glass', 'off'],
+      options: ['system', 'self-test', 'raw', 'daylight', 'stained-glass', 'off', 'stress-pwm'],
     },
   ];
 
@@ -48,6 +48,9 @@ export default class Mode extends DeviceRequestCommand {
         break;
       case 'off':
         body.mode = WindowModes.Off;
+        break;
+      case 'stress-pwm':
+        body.mode = WindowModes.StressPwm;
         break;
     }
 

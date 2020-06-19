@@ -9,7 +9,10 @@ import { SysRequest } from '../types/sys';
 export default class Sys extends DeviceRequestCommand {
   static description = 'Configure system functions of a device';
   static flags = { ...DeviceRequestCommand.flags };
-  static args = [Sys.deviceArg, { name: 'action', description: 'System action', required: true, options: ['ota', 'reset'] }];
+  static args = [
+    Sys.deviceArg,
+    { name: 'action', description: 'System action', required: true, options: ['ota', 'reset'] },
+  ];
 
   /** Run command */
   async run(): Promise<void> {

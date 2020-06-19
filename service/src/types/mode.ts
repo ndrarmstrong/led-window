@@ -36,6 +36,11 @@ export enum WindowModes {
    * Stained glass mode - emulate a stained glass window
    */
   StainedGlass = 6,
+
+  /**
+   * PWM stress mode - for resolving conflicts between analogWrite and FastLED on ESP8266
+   */
+  StressPwm = 7,
 }
 
 /**
