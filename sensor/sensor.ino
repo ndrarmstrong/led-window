@@ -62,11 +62,7 @@ void setup()
 void loop()
 {
   // INTENSITY SENSOR
-
   luxVal = light.readLight();
-  Serial.print("Ambient Light Reading: ");
-  Serial.print(luxVal);
-  Serial.println(" Lux");
 
   // COLOR SENSOR
   // Read sensor values (16 bit integers)
@@ -74,14 +70,28 @@ void loop()
   unsigned int green = RGB_sensor.readGreen();
   unsigned int blue = RGB_sensor.readBlue();
 
-  // Print out readings, change HEX to DEC if you prefer decimal output
-  Serial.print("Red: ");
-  Serial.println(red, HEX);
-  Serial.print("Green: ");
-  Serial.println(green, HEX);
-  Serial.print("Blue: ");
-  Serial.println(blue, HEX);
-  Serial.println();
+  unsigned int maxVal = 65535;
 
-  delay(2000);
+  unsigned long time = millis();
+
+  Serial.print("[");
+  Serial.print(time / 1000);
+  Serial.print("] ");
+  Serial.print("Light: ");
+  Serial.print(luxVal);
+  Serial.print(" lux, (");
+  Serial.print(red, HEX);
+  Serial.print(",");
+  Serial.print(green, HEX);
+  Serial.print(",");
+  Serial.print(blue, HEX);
+  Serial.print(") - (");
+  Serial.print((int)(1000 * (red / (float)maxVal)) / (float)1000);
+  Serial.print(",");
+  Serial.print((int)(1000 * (green / (float)maxVal)) / (float)1000);
+  Serial.print(",");
+  Serial.print((int)(1000 * (blue / (float)maxVal)) / (float)1000);
+  Serial.println(")");
+
+  delay(5000);
 }
