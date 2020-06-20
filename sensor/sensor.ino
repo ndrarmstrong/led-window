@@ -3,10 +3,8 @@
 #include "config.h"
 #include "system.h"
 #include "mqtt.h"
+#include "lightSensor.h"
 #include "log.h"
-#include <Wire.h>
-#include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
-#include "SparkFunISL29125.h"
 
 /**
  * @brief LED window display modes.
@@ -39,11 +37,7 @@ const Modes primaryMode = Modes::MEASURE;
  */
 Modes currentMode = Modes::STARTUP;
 
-static const int INTENSITY_SENSOR_ADDR = 0x48;
 static const int COLOR_SENSOR_ADDR = 0x44;
-
-SparkFun_Ambient_Light light(INTENSITY_SENSOR_ADDR);
-SFE_ISL29125 RGB_sensor;
 
 // INTENSITY SENSOR SETTING
 
@@ -60,42 +54,10 @@ long luxVal = 0;
 
 void setup()
 {
-  Wire.begin();
   Serial.begin(115200);
   Log::get().println("Window: Setup");
   System::get().setup();
   Mqtt::get().setCallback(dispatchMessage);
-
-  // // INTENSITY SENSOR
-
-  // if (light.begin())
-  // {
-  //   Serial.println("Ready to sense some light!");
-  // }
-  // else
-  // {
-  //   Serial.println("Could not communicate with the sensor!");
-  // }
-
-  // // Again the gain and integration times determine the resolution of the lux
-  // // value, and give different ranges of possible light readings. Check out
-  // // hoookup guide for more info.
-  // light.setGain(gain);
-  // light.setIntegTime(integTime);
-
-  // Serial.println("Reading settings...");
-  // Serial.print("Gain: ");
-  // float gainVal = light.readGain();
-  // Serial.print(gainVal, 3);
-  // Serial.print(" Integration Time: ");
-  // int timeVal = light.readIntegTime();
-  // Serial.println(timeVal);
-
-  // // COLOR SENSOR
-  // if (RGB_sensor.init())
-  // {
-  //   Serial.println("Sensor Initialization Successful\n\r");
-  // }
 }
 
 void loop()
@@ -118,40 +80,6 @@ void loop()
     // We've lost Wi-Fi; startup mode until reconnected
     switchModes(Modes::STARTUP);
   }
-
-  // // INTENSITY SENSOR
-  // luxVal = light.readLight();
-
-  // // COLOR SENSOR
-  // // Read sensor values (16 bit integers)
-  // unsigned int red = RGB_sensor.readRed();
-  // unsigned int green = RGB_sensor.readGreen();
-  // unsigned int blue = RGB_sensor.readBlue();
-
-  // unsigned int maxVal = 65535;
-
-  // unsigned long time = millis();
-
-  // Serial.print("[");
-  // Serial.print(time / 1000);
-  // Serial.print("] ");
-  // Serial.print("Light: ");
-  // Serial.print(luxVal);
-  // Serial.print(" lux, (");
-  // Serial.print(red, HEX);
-  // Serial.print(",");
-  // Serial.print(green, HEX);
-  // Serial.print(",");
-  // Serial.print(blue, HEX);
-  // Serial.print(") - (");
-  // Serial.print((int)(1000 * (red / (float)maxVal)) / (float)1000);
-  // Serial.print(",");
-  // Serial.print((int)(1000 * (green / (float)maxVal)) / (float)1000);
-  // Serial.print(",");
-  // Serial.print((int)(1000 * (blue / (float)maxVal)) / (float)1000);
-  // Serial.println(")");
-
-  // delay(5000);
 }
 
 /**
@@ -170,7 +98,14 @@ void switchModes(Modes nextMode)
   Log::get().print(" to mode ");
   Log::get().println(nextMode);
 
-  // TODO start/stop measuring
+  if (nextMode == Modes::MEASURE)
+  {
+    LightSensor::get().start();
+  }
+  else
+  {
+    LightSensor::get().stop();
+  }
 
   currentMode = nextMode;
 }
@@ -204,6 +139,22 @@ void dispatchMessage(char *topic, byte *payload, unsigned int length)
   else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_DESCRIBE) == topicStr)
   {
     System::get().onDescribeMessage(payloadCopy, length);
+  }
+  else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_LIGHT_LEVEL) == topicStr)
+  {
+    LightSensor::get().onLightLevelMessage(payloadCopy, length);
+  }
+  else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_INTERVAL) == topicStr)
+  {
+    LightSensor::get().onIntervalMessage(payloadCopy, length);
+  }
+  else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_LUX) == topicStr)
+  {
+    LightSensor::get().onLuxMessage(payloadCopy, length);
+  }
+  else if (Mqtt::get().deviceReqTopic(Config::MQTT_MSG_TOPIC_RGB) == topicStr)
+  {
+    LightSensor::get().onRgbMessage(payloadCopy, length);
   }
   else
   {

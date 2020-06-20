@@ -27,7 +27,6 @@ SFE_ISL29125::SFE_ISL29125(uint8_t addr)
 // Destructor - Deletes sensor object
 SFE_ISL29125::~SFE_ISL29125()
 {
-
 }
 
 // Initialize - returns true if successful
@@ -69,7 +68,7 @@ bool SFE_ISL29125::reset()
   data = read8(CONFIG_1);
   data |= read8(CONFIG_2);
   data |= read8(CONFIG_3);
-  data |= read8(STATUS);
+  data |= read8(STATUS_REG);
   if (data != 0x00)
   {
     return false;
@@ -156,7 +155,7 @@ uint16_t SFE_ISL29125::readBlue()
 // Check status flag register that allows for checking for interrupts, brownouts, and ADC conversion completions
 uint8_t SFE_ISL29125::readStatus()
 {
-  return read8(STATUS);
+  return read8(STATUS_REG);
 }
 
 // Generic I2C read register (single byte)
@@ -165,10 +164,10 @@ uint8_t SFE_ISL29125::read8(uint8_t reg)
   Wire.beginTransmission(_addr);
   Wire.write(reg);
   Wire.endTransmission();
-//  Wire.beginTransmission(_addr);
-  Wire.requestFrom(_addr,(uint8_t)1);
+  //  Wire.beginTransmission(_addr);
+  Wire.requestFrom(_addr, (uint8_t)1);
   uint8_t data = Wire.read();
-//  Wire.endTransmission();
+  //  Wire.endTransmission();
 
   return data;
 }
@@ -193,11 +192,11 @@ uint16_t SFE_ISL29125::read16(uint8_t reg)
   Wire.write(reg);
   Wire.endTransmission();
 
-//  Wire.beginTransmission(_addr);
+  //  Wire.beginTransmission(_addr);
   Wire.requestFrom(_addr, (uint8_t)2); // request 2 bytes of data
   data = Wire.read();
   data |= (Wire.read() << 8);
-//  Wire.endTransmission();
+  //  Wire.endTransmission();
 
   return data;
 }
@@ -208,6 +207,6 @@ void SFE_ISL29125::write16(uint8_t reg, uint16_t data)
   Wire.beginTransmission(_addr);
   Wire.write(reg);
   Wire.write(data);
-  Wire.write(data>>8);
+  Wire.write(data >> 8);
   Wire.endTransmission();
 }

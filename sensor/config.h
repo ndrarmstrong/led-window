@@ -152,6 +152,11 @@ public:
      */
     static const int LUX_DEFAULT_INTEGRATION_MS = 100;
 
+    /**
+     * @brief I2C address of the lux sensor
+     */
+    static const int LUX_SENSOR_ADDR = 0x48;
+
     //
     // RGB sensor configuration
     //
@@ -169,7 +174,7 @@ public:
     /**
      * @brief Default RGB sensor IR filtering level
      */
-    static const int RGB_DEFAULT_IR_FILTER_LEVEL = 0x20;
+    static const int RGB_DEFAULT_IR_FILTER_LEVEL = 0x3F;
 };
 
 #endif
