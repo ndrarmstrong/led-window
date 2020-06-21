@@ -66,22 +66,22 @@ void Mqtt::publish(const char *topic, const char *message)
 {
     if (mqttClient.connected())
     {
-        mqttClient.publish(deviceTopic(topic).c_str(), message);
+        mqttClient.publish(deviceTopic(topic).c_str(), message, false);
     }
 }
 
-void Mqtt::publish(const char *topic, const char *payload, unsigned int plength)
+void Mqtt::publish(const char *topic, const unsigned char *payload, unsigned int plength)
 {
     if (mqttClient.connected())
     {
-        mqttClient.publish(deviceTopic(topic).c_str(), payload, plength);
+        mqttClient.publish(deviceTopic(topic).c_str(), payload, plength, false);
     }
 }
 
 void Mqtt::acknowledge(const char *topic, bool success)
 {
     StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
-    char resBuf[Config::MQTT_MESSAGE_SIZE_B];
+    unsigned char resBuf[Config::MQTT_MESSAGE_SIZE_B];
     resDoc["result"] = success ? 0 : 1;
     size_t resLen = serializeJson(resDoc, resBuf);
 

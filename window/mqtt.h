@@ -52,7 +52,7 @@ public:
      * @param message Message to publish
      * @param length Length of message
      */
-    void publish(const char *topic, const char *payload, unsigned int plength);
+    void publish(const char *topic, const unsigned char *payload, unsigned int plength);
 
     /**
      * @brief Publish an acknowledgement response to a topic.

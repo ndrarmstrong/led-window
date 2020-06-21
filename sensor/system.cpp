@@ -211,7 +211,7 @@ void System::onDescribeMessage(byte *payload, unsigned int length)
 void System::publishDescribe()
 {
     StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
-    char resBuf[Config::MQTT_MESSAGE_SIZE_B];
+    unsigned char resBuf[Config::MQTT_MESSAGE_SIZE_B];
 
     resDoc["device"] = String(ESP.getChipId(), HEX);
     resDoc["freeHeapB"] = ESP.getFreeHeap();

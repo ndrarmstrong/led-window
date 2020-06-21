@@ -129,7 +129,7 @@ void LightSensor::readSensors()
 void LightSensor::publishLightLevel()
 {
     StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
-    char resBuf[Config::MQTT_MESSAGE_SIZE_B];
+    unsigned char resBuf[Config::MQTT_MESSAGE_SIZE_B];
 
     resDoc["lux"] = luxLevel;
     resDoc["luxWhite"] = luxWhiteLevel;
@@ -153,7 +153,7 @@ void LightSensor::onLightLevelMessage(byte *payload, unsigned int length)
 void LightSensor::publishLux()
 {
     StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
-    char resBuf[Config::MQTT_MESSAGE_SIZE_B];
+    unsigned char resBuf[Config::MQTT_MESSAGE_SIZE_B];
 
     resDoc["gain"] = luxGain;
     resDoc["integrationTimeMs"] = luxIntegrationMs;
@@ -165,7 +165,7 @@ void LightSensor::publishLux()
 void LightSensor::publishRgb()
 {
     StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
-    char resBuf[Config::MQTT_MESSAGE_SIZE_B];
+    unsigned char resBuf[Config::MQTT_MESSAGE_SIZE_B];
 
     resDoc["intensityRange"] = rgbIntensityRange;
     resDoc["irFilterOffset"] = rgbIrFilterOffset;
@@ -178,7 +178,7 @@ void LightSensor::publishRgb()
 void LightSensor::publishInterval()
 {
     StaticJsonDocument<Config::MQTT_MESSAGE_SIZE_B> resDoc;
-    char resBuf[Config::MQTT_MESSAGE_SIZE_B];
+    unsigned char resBuf[Config::MQTT_MESSAGE_SIZE_B];
 
     resDoc["intervalS"] = publishIntervalS;
 
