@@ -86,6 +86,7 @@ void LightSensor::reconfigure()
     rgbSensor.config(CFG1_MODE_RGB | rgbIntensityRange, rgbIrFilterOffset | rgbIrFilterLevel, CFG_DEFAULT);
 
     publishTicker.attach_ms_scheduled(publishIntervalS * 1000, std::bind(&LightSensor::readAndPublish, this));
+    readAndPublish();
 }
 
 void LightSensor::delayedReconfigure()
