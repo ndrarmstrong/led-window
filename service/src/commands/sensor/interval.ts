@@ -2,6 +2,7 @@ import DeviceRequestCommand from '../../lib/deviceRequestCommand';
 import { AcknowledgeResponses, Acknowledgement } from '../../types/ack';
 import MqttClient from '../../lib/mqttClient';
 import { PublishRequest } from '../../types/publish';
+import { throws } from 'assert';
 
 /**
  * Change the sensor publish interval
@@ -14,9 +15,17 @@ export default class Interval extends DeviceRequestCommand {
     {
       name: 'interval',
       description: 'Publish interval, in seconds',
-      required: true,
     },
   ];
+
+  /**
+   * Reply with a sample message
+   */
+  selfReply(): PublishRequest {
+    return {
+      intervalS: 5,
+    };
+  }
 
   /**
    * Run command
@@ -24,10 +33,14 @@ export default class Interval extends DeviceRequestCommand {
   async run(): Promise<void> {
     const { args, flags } = this.parse(Interval);
 
-    let res: Acknowledgement;
-    const body: PublishRequest = {
-      intervalS: parseInt(args.interval),
-    };
+    let res: PublishRequest;
+    const body: PublishRequest = {};
+
+    if (args.interval) {
+      body.intervalS = parseInt(args.interval);
+    }
+
+    this.log(JSON.stringify(body));
 
     try {
       if (flags.method == 'mqtt') {
@@ -38,7 +51,7 @@ export default class Interval extends DeviceRequestCommand {
           reqTopic,
           JSON.stringify(body),
           await this.getAccessKey(),
-          flags.reply ? this.selfAcknowledge : undefined
+          flags.reply ? this.selfReply : undefined
         );
       } else {
         this.error(`Unsupported request method: ${flags.method}`);
@@ -48,10 +61,7 @@ export default class Interval extends DeviceRequestCommand {
     }
 
     this.log('---');
-    if (res.result === AcknowledgeResponses.Success) {
-      this.log(`Interval changed to ${args.interval}s`);
-    } else {
-      this.error(`Failed to change interval: ${res.result}`);
-    }
+    this.log(`Publish interval: ${res.intervalS}s`);
+    this.log(JSON.stringify(res));
   }
 }

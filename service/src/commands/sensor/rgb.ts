@@ -18,16 +18,23 @@ export default class Rgb extends DeviceRequestCommand {
   static args = [Rgb.deviceArg];
 
   /**
+   * Reply with a sample message
+   */
+  selfReply(): RgbConfig {
+    return {
+      intensityRange: RgbIntensityRange.Range10kLux,
+      irFilterOffset: RgbIRFilterOffset.Off,
+      irFilterLevel: RgbIRFilterLevel.High,
+    };
+  }
+
+  /**
    * Run command
    */
   async run(): Promise<void> {
     const { args, flags } = this.parse(Rgb);
 
-    if (flags.range === undefined && flags.irLevel === undefined && flags.irOffset === undefined) {
-      this.error(`Must set at least one of range, irOffset, or irLevel to configure RGB sensor`);
-    }
-
-    let res: Acknowledgement;
+    let res: RgbConfig;
     const body: RgbConfig = {};
 
     if (flags.range === '375') {
@@ -59,7 +66,7 @@ export default class Rgb extends DeviceRequestCommand {
           reqTopic,
           JSON.stringify(body),
           await this.getAccessKey(),
-          flags.reply ? this.selfAcknowledge : undefined
+          flags.reply ? this.selfReply : undefined
         );
       } else {
         this.error(`Unsupported request method: ${flags.method}`);
@@ -70,26 +77,16 @@ export default class Rgb extends DeviceRequestCommand {
 
     this.log('---');
 
-    let range = '';
-    let irOffset = '';
-    let irLevel = '';
-
-    if (body.intensityRange !== undefined) {
-      range = `range ${RgbIntensityRange[body.intensityRange]} `;
+    if (res.intensityRange !== undefined) {
+      this.log(`Intensity range: ${RgbIntensityRange[res.intensityRange]}`);
     }
 
-    if (body.irFilterOffset !== undefined) {
-      irOffset = `filter offset ${RgbIRFilterOffset[body.irFilterOffset]} `;
+    if (res.irFilterOffset !== undefined) {
+      this.log(`IR filter offset:  ${RgbIRFilterOffset[res.irFilterOffset]}`);
     }
 
-    if (body.irFilterLevel !== undefined) {
-      irLevel = `filter level ${RgbIRFilterLevel[body.irFilterLevel]} `;
-    }
-
-    if (res.result === AcknowledgeResponses.Success) {
-      this.log(`Configured RGB sensor: ${range}${irOffset}${irLevel}`);
-    } else {
-      this.error(`Failed to change mode: ${range}${irOffset}${irLevel}`);
+    if (res.irFilterLevel !== undefined) {
+      this.log(`IR filter level: ${RgbIRFilterLevel[res.irFilterLevel]}`);
     }
   }
 }

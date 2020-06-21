@@ -22,7 +22,9 @@ export default class Tail extends DeviceCommand {
     const redPct = (val.red / 65535).toFixed(3);
     const greenPct = (val.green / 65535).toFixed(3);
     const bluePct = (val.blue / 65535).toFixed(3);
-    const color = `(${val.red.toString(16)},${val.green.toString(16)},${val.blue.toString(16)})/(${redPct},${greenPct},${bluePct})`;
+    const color = `(${val.red.toString(16)},${val.green.toString(16)},${val.blue.toString(
+      16
+    )})/(${redPct},${greenPct},${bluePct})`;
     console.log(`[${new Date().toISOString()}] ${color} at ${val.lux.toLocaleString()} lux`);
   }
 

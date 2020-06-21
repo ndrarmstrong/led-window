@@ -9,6 +9,12 @@ export interface LightLevelReading {
   lux: number;
 
   /**
+   * White light intensity, in Lux.
+   * NB: This is read by a separate sensor than the red/green/blue values.
+   */
+  luxWhite: number;
+
+  /**
    * Red level (not in lux).
    * NB: This is read by a separate sensor than the lux value.
    */

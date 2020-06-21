@@ -88,7 +88,7 @@ export default class Broker {
       // Limited-length preview of payload
       let payloadStr = packet.payload.toString();
       payloadStr = payloadStr.length > 100 ? `${payloadStr.substr(0, 40)}...` : payloadStr;
-      this.log(`published to ${packet.topic} with payload '${payloadStr}'`, client);
+      this.log(`published ${packet.retain ? 'RETAINED' : ''}to ${packet.topic} with payload '${payloadStr}'`, client);
     });
 
     this.netServer.listen(this.port, this.host, () => {
