@@ -1,8 +1,6 @@
 import DeviceRequestCommand from '../../lib/deviceRequestCommand';
-import { AcknowledgeResponses, Acknowledgement } from '../../types/ack';
 import MqttClient from '../../lib/mqttClient';
 import { PublishRequest } from '../../types/publish';
-import { throws } from 'assert';
 
 /**
  * Change the sensor publish interval

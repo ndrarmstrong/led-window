@@ -1,6 +1,5 @@
 import { flags } from '@oclif/command';
 import DeviceRequestCommand from '../../lib/deviceRequestCommand';
-import { AcknowledgeResponses, Acknowledgement } from '../../types/ack';
 import MqttClient from '../../lib/mqttClient';
 import { RgbConfig, RgbIntensityRange, RgbIRFilterOffset, RgbIRFilterLevel } from '../../types/rgb';
 
